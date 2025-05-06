@@ -1,0 +1,49 @@
+# -*- coding: mbcs -*-
+#
+# Abaqus/Viewer Release 2023.HF4 replay file
+# Internal Version: 2023_07_21-20.45.57 RELr425 183702
+# Run by nguyenb5 on Tue Feb 11 16:49:03 2025
+#
+
+# from driverUtils import executeOnCaeGraphicsStartup
+# executeOnCaeGraphicsStartup()
+#: Abaqus Warning: Unknown keyword (current_os) in environment file.
+#: Abaqus Warning: Please check spelling of the environment variable names.
+#:                 Unknown keyword "keywordname" can be removed using "del keywordname"
+#:                 at the end of environment file.
+#: Executing "onCaeGraphicsStartup()" in the site directory ...
+#: Warning: Permission was denied for "abaqus.rpy"; "abaqus.rpy.4" will be used for this session's replay file.
+from abaqus import *
+from abaqusConstants import *
+session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=234.03645324707, 
+    height=121.741897583008)
+session.viewports['Viewport: 1'].makeCurrent()
+session.viewports['Viewport: 1'].maximize()
+from viewerModules import *
+from driverUtils import executeOnCaeStartup
+executeOnCaeStartup()
+#: Abaqus Warning: Unknown keyword (current_os) in environment file.
+#: Abaqus Warning: Please check spelling of the environment variable names.
+#:                 Unknown keyword "keywordname" can be removed using "del keywordname"
+#:                 at the end of environment file.
+o2 = session.openOdb(name='elastic_plate_3D_processed.odb')
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].setValues(displayedObject=o2)
+session.viewports['Viewport: 1'].makeCurrent()
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.122841, 
+    farPlane=0.20542, width=0.0484039, height=0.022193, 
+    viewOffsetX=-0.00484004, viewOffsetY=-0.00755699)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results

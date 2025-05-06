@@ -1,0 +1,376 @@
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.jobs.changeKey(fromName='Job-1', toName='elastic_plate_3D')
+mdb.models['Model-3D'].materials['Material-1'].depvar.setValues(n=43)
+mdb.Model(name='elastic_plate_3D', objectToCopy=mdb.models['Model-3D'])
+del mdb.jobs['elastic_plate_3D']
+mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, 
+    explicitPrecision=SINGLE, getMemoryFromAnalysis=True, historyPrint=OFF, 
+    memory=90, memoryUnits=PERCENTAGE, model='elastic_plate_3D', modelPrint=OFF
+    , multiprocessingMode=DEFAULT, name='elastic_plate_3D', 
+    nodalOutputPrecision=SINGLE, numCpus=1, numGPUs=0, numThreadsPerMpiProcess=
+    1, queue=None, resultsFormat=ODB, scratch='', type=ANALYSIS, 
+    userSubroutine='', waitHours=0, waitMinutes=0)
+mdb.models['elastic_plate_3D'].materials['Material-1'].userMaterial.setValues(
+    mechanicalConstants=(210000000000.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    869678161.0, 0.0, 871526750.9, 0.0002, 873375340.8, 0.0004, 875223930.6, 
+    0.0006, 877072520.5, 0.0008, 878921110.3, 0.001, 888164059.7, 0.002, 
+    897407009.0, 0.003, 906649958.3, 0.004, 915892907.6, 0.005, 925135856.9, 
+    0.006, 934378806.2, 0.007, 943621755.5, 0.008, 952084914.3, 0.009, 
+    959844844.4, 0.01, 1010427048.0, 0.02, 1033932857.0, 0.03, 1046208995.0, 
+    0.04, 1053646044.0, 0.05, 1058887114.0, 0.06, 1063049790.0, 0.07, 
+    1066621845.0, 0.08, 1069826972.0, 0.09, 1072775596.0, 0.1, 1079364332.0, 
+    0.125, 1085153293.0, 0.15, 1090361229.0, 0.175, 1095119522.0, 0.2, 
+    1099516804.0, 0.225, 1103616454.0, 0.25, 1107465618.0, 0.275, 1111100445.0, 
+    0.3, 1114549346.0, 0.325, 1117835107.0, 0.35, 1120976321.0, 0.375, 
+    1123988384.0, 0.4, 1126884207.0, 0.425, 1129674736.0, 0.45, 1132369345.0, 
+    0.475, 1134976132.0, 0.5, 1137502145.0, 0.525, 1139953559.0, 0.55, 
+    1142335826.0, 0.575, 1144653780.0, 0.6, 1146911730.0, 0.625, 1149113542.0, 
+    0.65, 1151262691.0, 0.675, 1153362320.0, 0.7, 1155415280.0, 0.725, 
+    1157424164.0, 0.75, 1159391342.0, 0.775, 1161318984.0, 0.8, 1163209085.0, 
+    0.825, 1165063480.0, 0.85, 1166883866.0, 0.875, 1168671811.0, 0.9, 
+    1170428771.0, 0.925, 1172156099.0, 0.95, 1173855056.0, 0.975, 1175526817.0, 
+    1.0, 1178793080.0, 1.05, 1181962876.0, 1.1, 1185043253.0, 1.15, 
+    1188040464.0, 1.2, 1190960083.0, 1.25, 1193807107.0, 1.3, 1196586031.0, 
+    1.35, 1199300921.0, 1.4, 1201955460.0, 1.45, 1204553006.0, 1.5, 
+    1207096621.0, 1.55, 1209589113.0, 1.6, 1212033060.0, 1.65, 1214430836.0, 
+    1.7, 1216784635.0, 1.75, 1219096485.0, 1.8, 1221368268.0, 1.85, 
+    1223601736.0, 1.9, 1225798517.0, 1.95, 1227960132.0, 2.0, 1230088002.0, 
+    2.05, 1232183459.0, 2.1, 1234247750.0, 2.15, 1236282049.0, 2.2, 
+    1238287457.0, 2.25, 1240265014.0, 2.3, 1242215699.0, 2.35, 1244140439.0, 
+    2.4, 1246040107.0, 2.45, 1247915534.0, 2.5, 1249767502.0, 2.55, 
+    1251596759.0, 2.6, 1253404010.0, 2.65, 1255189928.0, 2.7, 1256955154.0, 
+    2.75, 1258700297.0, 2.8, 1260425937.0, 2.85, 1262132630.0, 2.9, 
+    1263820905.0, 2.95, 1265491268.0, 3.0), thermalConstants=(8.31446, 300.0, 
+    2e-06, 3.07e-10, 3.0, 1.0, 6.02214e+23, 8.518e+28, 1.0, 1.0, 1.0, 0.0, 
+    8.464e+22, 8.464e+26, -20200.0, -58600.0, -11500.0, 6.0, 1.0, 2.866e-10, 
+    3.571e-10, 2e+16, 10000000000.0, 30000.0))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].deleteMesh(regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#f ]', ), ))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].seedEdgeByNumber(
+    constraint=FIXED, edges=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].edges.getSequenceFromMask(
+    ('[#2982012a #1 ]', ), ), number=1)
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].generateMesh()
+# Save by nguyenb5 on 2024_10_26-17.47.31; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+# Save by nguyenb5 on 2024_10_26-17.58.11; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].sections['Section-1'].setValues(material=
+    'Material-1', thickness=None)
+mdb.models['elastic_plate_3D'].materials['Material-1'].userMaterial.setValues(
+    thermalConstants=(3.0, 1.0, 8.31446, 300.0, 2e-06, 3.07e-10, 6.02214e+23, 
+    8.518e+28, 1.0, 1.0, 1.0, 0.0, 8.464e+22, 8.464e+26, -20200.0, -58600.0, 
+    -11500.0, 6.0, 1.0, 2.866e-10, 3.571e-10, 2e+16, 10000000000.0, 30000.0))
+# Save by nguyenb5 on 2024_10_26-17.58.53; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].rootAssembly.regenerate()
+del mdb.models['elastic_plate_3D'].historyOutputRequests['H-Output-1']
+mdb.models['elastic_plate_3D'].fieldOutputRequests['F-Output-1'].setValues(
+    variables=('S', 'LE', 'U', 'RF', 'NT', 'COORD', 'SDV'))
+# Save by nguyenb5 on 2024_10_26-18.00.17; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].boundaryConditions.changeKey(fromName='ZSYMM', 
+    toName='Zsymm')
+mdb.models['elastic_plate_3D'].rootAssembly.sets.changeKey(fromName='Set-6', 
+    toName='xsymm_side')
+mdb.models['elastic_plate_3D'].rootAssembly.sets.changeKey(fromName='Set-3', 
+    toName='ysymm_side')
+mdb.models['elastic_plate_3D'].rootAssembly.sets.changeKey(fromName='Set-13', 
+    toName='zsymm_side')
+mdb.models['elastic_plate_3D'].boundaryConditions['Xsymm'].setValues(region=
+    mdb.models['elastic_plate_3D'].rootAssembly.sets['xsymm_side'])
+mdb.models['elastic_plate_3D'].boundaryConditions['Ysymm'].setValues(region=
+    mdb.models['elastic_plate_3D'].rootAssembly.sets['ysymm_side'])
+mdb.models['elastic_plate_3D'].boundaryConditions['Zsymm'].setValues(region=
+    mdb.models['elastic_plate_3D'].rootAssembly.sets['zsymm_side'])
+mdb.models['elastic_plate_3D'].rootAssembly.sets.changeKey(fromName='Set-1', 
+    toName='whole_part')
+mdb.models['elastic_plate_3D'].rootAssembly.deleteSets(setNames=('Set-12', 
+    'Set-2', 'Set-4', 'Set-5', 'Set-7', 'Set-8', 'Set-9', 'Set-10', 'Set-11'))
+mdb.models['elastic_plate_3D'].predefinedFields['Cbar_L'].setValues(region=
+    mdb.models['elastic_plate_3D'].rootAssembly.sets['whole_part'])
+mdb.models['elastic_plate_3D'].rootAssembly.Surface(name='Surf-1', side1Faces=
+    mdb.models['elastic_plate_3D'].rootAssembly.instances['elastic-hold-plate-1'].faces.getSequenceFromMask(
+    ('[#4004 ]', ), ))
+# Save by nguyenb5 on 2024_10_26-18.03.19; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+# Save by nguyenb5 on 2024_10_26-18.17.45; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+# Save by nguyenb5 on 2024_10_26-19.18.22; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].fieldOutputRequests['F-Output-1'].setValues(
+    variables=('S', 'LE', 'U', 'RF', 'NT', 'COORD', 'SDV', 'UVARM'))
+# Save by nguyenb5 on 2024_10_26-19.20.20; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].fieldOutputRequests['F-Output-1'].setValues(
+    variables=('COORD', 'LE', 'NT', 'RF', 'S', 'SDV', 'U', 'UVARM'))
+# Save by nguyenb5 on 2024_10_26-19.23.03; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials['Material-1'].UserOutputVariables(n=
+    10)
+# Save by nguyenb5 on 2024_10_26-19.23.39; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].Field(createStepName='Step-1', distributionType=
+    USER_DEFINED, fieldVariableNum=1, name='Predefined Field-2', region=
+    mdb.models['elastic_plate_3D'].rootAssembly.sets['whole_part'])
+# Save by nguyenb5 on 2024_10_26-21.03.04; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+# Save by nguyenb5 on 2024_10_26-21.31.01; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+del mdb.models['cube']
+del mdb.models['Model-3D-no_srt']
+del mdb.models['Model-3D']
+mdb.models.changeKey(fromName='Model-2D', toName='elastic_plate_2D')
+# Save by chernys1 on 2024_11_09-15.33.05; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials['Material-1'].depvar.setValues(n=50)
+# Save by chernys1 on 2024_11_09-17.26.57; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials['Material-1'].UserDefinedField()
+del mdb.models['elastic_plate_3D'].materials['Material-1'].userDefinedField
+# Save by nguyenb5 on 2024_11_11-13.46.02; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].deleteMesh(regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#f ]', ), ))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].seedEdgeByNumber(
+    constraint=FIXED, edges=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].edges.getSequenceFromMask(
+    ('[#2982012a #1 ]', ), ), number=2)
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].generateMesh(
+    regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#2 ]', ), ))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].generateMesh(
+    regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#1 ]', ), ))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].generateMesh(
+    regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#4 ]', ), ))
+mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].generateMesh(
+    regions=
+    mdb.models['elastic_plate_3D'].parts['elastic-hold-plate'].cells.getSequenceFromMask(
+    ('[#8 ]', ), ))
+# Save by nguyenb5 on 2025_02_06-13.02.38; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials['Material-1'].depvar.setValues(n=0)
+mdb.models['elastic_plate_3D'].materials['Material-1'].userMaterial.setValues(
+    mechanicalConstants=(0.0, ), thermalConstants=(0.0, ))
+mdb.models['elastic_plate_3D'].materials['Material-1'].userOutputVariables.setValues(
+    n=0)
+# Save by nguyenb5 on 2025_02_06-13.03.26; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials.changeKey(fromName='Material-1', 
+    toName='thermalmechanical')
+mdb.models['elastic_plate_3D'].materials.changeKey(fromName='thermalmechanical'
+    , toName='thermomechanical')
+mdb.models['elastic_plate_3D'].sections['Section-1'].setValues(material=
+    'thermomechanical', thickness=None)
+mdb.models['elastic_plate_3D'].rootAssembly.regenerate()
+mdb.models['elastic_plate_3D'].fieldOutputRequests['F-Output-1'].setValues(
+    variables=('COORD', 'LE', 'NT', 'RF', 'S', 'SDV', 'U', 'UVARM'))
+mdb.models['elastic_plate_3D'].predefinedFields.changeKey(fromName=
+    'Predefined Field-2', toName='UFIELD')
+# Save by nguyenb5 on 2025_02_06-13.05.11; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+# Save by nguyenb5 on 2025_02_06-16.28.21; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].materials['thermomechanical'].UserDefinedField()
+# Save by nguyenb5 on 2025_02_06-17.34.49; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['elastic_plate_3D'].IntegratedOutputSection(name='surface', surface=
+    mdb.models['elastic_plate_3D'].rootAssembly.surfaces['Surf-1'])
+mdb.models['elastic_plate_3D'].HistoryOutputRequest(createStepName='Step-1', 
+    integratedOutputSection='surface', name='H-Output-1', rebar=EXCLUDE, 
+    sectionPoints=DEFAULT, variables=('SOF', 'SOH'))
+# Save by nguyenb5 on 2025_02_06-18.20.25; build 2023.HF4 2023_07_21-20.45.57 RELr425 183702

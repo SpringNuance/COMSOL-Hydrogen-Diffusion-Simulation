@@ -1,0 +1,253 @@
+C***********************************************************************
+C
+      SUBROUTINE KHYDRODMG(DDH,F,DFDC,SCFCN,BBH,SC,CTOTAL,IHYDRO,IWR,
+     + IOUT)
+C
+C*** SUBROUTINE USED FOR HYDROGEN DAMAGE MODEL (DDH AND DERIVATIVES)
+C*** CHANGE THIS SUBROUTINE BASED ON HYDROGEN MODEL
+C
+      INCLUDE 'ABA_PARAM.INC'
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)
+        WRITE(IOUT,*)'ENTERS KHYDRODMG'
+        WRITE(IOUT,*)'FLAG FOR HYDROGEN DAMAGE IHYDRO:'
+        WRITE(IOUT,1002) IHYDRO
+      END IF
+C
+C*** 1-WAY COUPLING PROVISION - NO HYDROGEN EFFECTS ON STRENGTH
+C
+      IF (IHYDRO.NE.1) THEN ! 1-WAY COUPLING (DDH=0)
+        DDH    = 0.D0
+        F      = 1.D0
+        DFDC   = 0.D0
+        SCFCN  = SC
+        BBH    = 1.D0
+        GOTO 9000
+      END IF
+C
+C*** 2-WAY COUPLING - HYDROGEN EFFECTS ON STRENGTH ARE INTRODUCED 
+C*** CHANGE VALUES OF CH1, CH2 BASED ON DIFFUSION COEFICIENT
+C
+      CH1 = 9.D0
+      CH2 = 380.D0
+      XI  = 0.1D0
+C
+      IF (CTOTAL.LE.CH1) THEN
+        DDH  = 0.D0
+        F    = 1.D0 - DDH
+        DFDC = 0.D0 
+      END IF
+      IF (CTOTAL.GT.CH2) THEN
+        DDH  = 1.D0 - XI
+        F    = 1.D0 - DDH
+        DFDC = 0.D0 
+      END IF
+      IF (CTOTAL.GT.CH1.AND.CTOTAL.LE.CH2) THEN
+        DDH  = (1.D0-XI)*(CTOTAL-CH1)/(CH2-CH1)
+        F    = 1.D0 - DDH
+        DFDC = -(1.D0-XI)/(CH2-CH1)  
+      END IF
+C
+C*** INTRODUCE HYDROGEN EFFECT ON CRITICAL CLEAVAGE STRESS
+C
+      CC1 = 78.D0
+      AH1 = 1.D0
+      CC2 = 83.15D0
+      AH2 = 0.250667D0
+      A1 = CC1*(CC1-3.D0*CC2)*(AH1-AH2)/((CC1-CC2)**3)
+      A2 = (CC1+3.D0*CC2)*(AH1-AH2)/((CC1-CC2)**3)
+      A3 = -2.D0*(AH1-AH2)/((CC1-CC2)**3)
+      IF (CTOTAL.LE.CC1) THEN
+        AH = AH1
+      END IF 
+      IF (CTOTAL.GT.CC2) THEN
+        AH = AH2
+      END IF
+      IF (CTOTAL.GT.CC1.AND.CTOTAL.LE.CC2) THEN
+        AH = AH1 + (CTOTAL - CC1)*(A1 + A2*CTOTAL + A3*CTOTAL**2)
+      END IF
+      SCFCN = AH*SC
+C
+C*** INTRODUCE HYDROGEN EFFECT ON CRITICAL DUCTILE DAMAGE DCR 
+C
+      CC3 = 5.D0
+      BH1 = 1.D0
+      CC4 = 10.4439D0
+      BH2 = 0.47626D0
+      B1 = CC3*(CC3-3.D0*CC4)*(BH1-BH2)/((CC3-CC4)**3)
+      B2 = (CC3+3.D0*CC4)*(BH1-BH2)/((CC3-CC4)**3)
+      B3 = -2.D0*(BH1-BH2)/((CC3-CC4)**3)
+      IF (CTOTAL.LE.CC3) THEN
+        BBH = BH1
+      END IF 
+      IF (CTOTAL.GT.CC4) THEN
+        BBH = BH2
+      END IF
+      IF (CTOTAL.GT.CC3.AND.CTOTAL.LE.CC4) THEN
+        BBH = BH1 + (CTOTAL - CC3)*(B1 + B2*CTOTAL + B3*CTOTAL**2)
+      END IF
+C
+ 9000 CONTINUE 
+C      
+ 1001 FORMAT(1P8E13.5)
+ 1002 FORMAT(10I5)
+      END      
+C
+
+
+C***********************************************************************
+C
+      SUBROUTINE KDAMAGE(DD,YIELD,EBAR,ETA,AVGETA,AVGTHETA,PS1,PDDT,
+     + AIDDT,EBART,AIDD,PDD,SYI,EPCL,SCFCN,C1,C2,C3,C4,ETAC,GF,D1,
+     + D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,IPLDMG,IHYDRO,DDH,DCOMB,
+     + FFLAGCL,FFLAGD,BBH,DSTAR,IWR,IOUT)
+C
+C*** SUBROUTINE TO CHECK DIFFERENT KINDS OF DAMAGE AT THE MATERIAL POINT
+C*** AIDD: INDICATOR FOR DUCTILE DAMAGE INITIATION (1: DUCTILE DAMAGE STARTS)
+C*** AIF:  INDICATOR FOR COMPLETE LOAD-CARRYING CAPACITY LOSS FOR MBW MODEL
+C*** FFLAG: SDV BASED ON WHICH ELEMENT DELETION IS EMPLOYED
+C*** FFLAGCL: FLAG FOR CLEAVAGE FAILURE (1.D0: BRITTLE FRACTURE HAS OCCURED)
+C*** FFLAGD:  FLAG FOR DUCTILE FAILURE (1.D0: DUCTILE FRACTURE HAS OCCURED)
+C
+      INCLUDE 'ABA_PARAM.INC'
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) '---------------------------------'
+        WRITE(IOUT,*)'SUBROUTINE KDAMAGE STARTS'
+        WRITE(IOUT,*) '---------------------------------'
+        WRITE(IOUT,*)'FLAG FOR PLASTICTY DAMAGE IPLDMG:'
+        WRITE(IOUT,1002) IPLDMG
+        WRITE(IOUT,*)'AIDDT,PDDT,EBAR,EBART,SCFCN'
+        WRITE(IOUT,1001) AIDDT,PDDT,EBAR,EBART,SCFCN
+        WRITE(IOUT,*)'C1,C2,C3,C4,D1,D2,D3,D4,SYI,GF'
+        WRITE(IOUT,1001) C1,C2,C3,C4,D1,D2,D3,D4,SYI,GF
+      END IF
+C
+      IF (IPLDMG.NE.1) THEN ! NO PLASTICITY DAMAGE (DD=0)
+        AIDD  = AIDDT 
+        AIF   = AIFT
+        PDD   = PDDT
+        DD    = PDD
+        DCR   = DCRT
+        GOTO 33000
+      END IF
+C
+      IF (EBAR.LE.1.D-3.OR.FFLAG.EQ.0.D0) THEN
+        AIDD = AIDDT 
+        AIF  = AIFT
+        PDD  = PDDT
+        DD   = PDD
+        DCR  = DCRT
+        GOTO 33000 
+      END IF
+C
+C*** CALCULATE FUNCTIONS EPI AND DCR
+C
+      AUXEP = (C1*DEXP(-C2*AVGETA)-C3*DEXP(-C4*AVGETA))*AVGTHETA**2 + 
+     +        C3*DEXP(-C4*AVGETA)
+      IF (AVGETA.GT.ETAC) THEN
+       EPI = AUXEP
+      ELSE
+       EPI = 1000.D0
+      END IF
+C
+      AUXDD = (D1*DEXP(-D2*AVGETA)-D3*DEXP(-D4*AVGETA))*AVGTHETA**2 + 
+     +        D3*DEXP(-D4*AVGETA)
+      IF (AVGETA.GT.ETAC) THEN
+       DCR = BBH*AUXDD
+      ELSE
+       DCR = 1000.D0
+      END IF
+      IF (FFLAGD.EQ.1.D0) DCR = DCRT
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)'AUXEP,EPI,AUXDD,DCR'
+        WRITE(IOUT,1001) AUXEP,EPI,AUXDD,DCR
+      END IF
+C
+C*** CHECK 1: CLEAVAGE FAILURE
+C
+      IF (PS1.GE.SCFCN) THEN
+        AIF  = AIFT
+        AIDD = AIDDT 
+        PDD  = PDDT
+        DD   = PDD
+        FFLAG   = 0.D0
+        FFLAGCL = 1.D0
+        GOTO 33000
+      END IF
+C
+C*** CHECK 2: DUCTILE DAMAGE FAILURE
+C
+C
+C*** DUCTILE DAMAGE INITIATION
+C
+      AIDD = AIDDT + (EBAR - EBART)/EPI
+      IF (AIDD.GE.1.D0.AND.DFLAG.NE.1.D0)  THEN
+        SYI = YIELD
+        DFLAG = 1.D0
+      END IF
+      IF (AIDD.GT.1.D0) THEN
+        AIDD = 1.D0
+      END IF
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)'AIDD,SYI,DFLAG'
+        WRITE(IOUT,1001) AIDD,SYI,DFLAG
+      END IF
+C
+C*** MBW DAMAGE (DD AND AIF) EVOLUTION
+C      
+      IF (DFLAG.EQ.1.D0) THEN
+        IF (ETA.GT.ETAC) THEN
+          PDD = PDDT + SYI*(EBAR-EBART)/GF
+          DD  = PDD
+          AIF = AIFT + (PDD-PDDT)/DCR
+        ELSE
+          PDD = PDDT
+          DD  = PDD
+          AIF = AIFT 
+        END IF
+      END IF
+C
+C*** CHECK 2: FAILURE DUE TO DUCTILE DAMAGE
+C
+      DCOMB = 1.D0 - (1.D0 - DD)*(1.D0 - DDH)
+      DSTAR = DD
+C
+      IF (AIF.GE.1.D0) THEN
+        AIF = 1.D0
+        IF (FFLAGD.NE.1.D0) THEN
+          DCR = DD
+          DCRT = DD
+          FFLAGD = 1.D0
+        ELSE
+          DDC = DCR
+          DDF = 1.001D0*DDC
+          DSTARF = 0.95D0
+          AKDD = (DSTARF - DDC)/(DDF - DDC)
+          DSTAR = DDC + AKDD*(DD - DDC)
+          IF (DSTAR.GE.DSTARF) THEN
+            DSTAR = DSTARF  
+            FFLAG = 0.D0
+          END IF
+        END IF
+      END IF
+C
+33000 CONTINUE
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)'AIDD,DFLAG,AIF,FFLAG,DD,PDD,DCR'
+        WRITE(IOUT,1001) AIDD,DFLAG,AIF,FFLAG,DD,PDD,DCR
+        WRITE(IOUT,*)'DCOMB,DSTAR,SCFCN,FFLAGCL,FFLAGD'
+        WRITE(IOUT,1001) DCOMB,DSTAR,SCFCN,FFLAGCL,FFLAGD
+        WRITE(IOUT,*) '---------------------------------'
+        WRITE(IOUT,*)'SUBROUTINE KDAMAGE ENDS'
+        WRITE(IOUT,*) '---------------------------------'
+      END IF
+C      
+ 1001 FORMAT(1P8E13.5)
+ 1002 FORMAT(10I5)
+      END      
+C

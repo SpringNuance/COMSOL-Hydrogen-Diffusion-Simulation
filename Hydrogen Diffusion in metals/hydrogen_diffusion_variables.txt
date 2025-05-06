@@ -1,0 +1,8 @@
+srcCoeff "trapFun(c, NTrap1, Eb1)+trapFun(c, NTrap2, Eb2)" "Source coefficient"
+J_va (1-theta)*(K_va*cHp*exp(-alpha_va*eta)+K_vb*exp(-alpha_vb*eta)) "Forward reaction contribution to influx"
+J_vap theta*(K_ha*cHp*exp(-alpha_ha*eta)+K_hb*exp(-alpha_hb*eta)+2*K_t*theta) "Backward reaction contribution to influx"
+J_influx J_va-J_vap "Net boundary flux"
+cHp 10^(3-pH)[mol/m^3] "H+ concentration at interface"
+Vo Vm-Veq-Ve "Overpotential"
+eta Vo*F_const/(R_const*T0) "Help variable"
+theta c/(K_a/K_ar*(N-c)+c) "Help variable"

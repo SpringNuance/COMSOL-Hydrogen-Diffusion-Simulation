@@ -1,0 +1,441 @@
+# -*- coding: mbcs -*-
+#
+# Abaqus/CAE Release 2023.HF4 replay file
+# Internal Version: 2023_07_21-20.45.57 RELr425 183702
+# Run by nguyenb5 on Tue Feb 11 13:11:38 2025
+#
+
+# from driverUtils import executeOnCaeGraphicsStartup
+# executeOnCaeGraphicsStartup()
+#: Abaqus Warning: Unknown keyword (current_os) in environment file.
+#: Abaqus Warning: Please check spelling of the environment variable names.
+#:                 Unknown keyword "keywordname" can be removed using "del keywordname"
+#:                 at the end of environment file.
+#: Executing "onCaeGraphicsStartup()" in the site directory ...
+from abaqus import *
+from abaqusConstants import *
+session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=234.03645324707, 
+    height=121.741897583008)
+session.viewports['Viewport: 1'].makeCurrent()
+session.viewports['Viewport: 1'].maximize()
+from caeModules import *
+from driverUtils import executeOnCaeStartup
+executeOnCaeStartup()
+#: Abaqus Warning: Unknown keyword (current_os) in environment file.
+#: Abaqus Warning: Please check spelling of the environment variable names.
+#:                 Unknown keyword "keywordname" can be removed using "del keywordname"
+#:                 at the end of environment file.
+openMdb('elastic_hole_plate_3D.cae')
+#: The model database "C:\LocalUserData\User-data\nguyenb5\Hydrogen-Embrittlement-Subroutine-Aachen\elastic_plate_3D\elastic_hole_plate_3D.cae" has been opened.
+session.viewports['Viewport: 1'].setValues(displayedObject=None)
+session.viewports['Viewport: 1'].partDisplay.geometryOptions.setValues(
+    referenceRepresentation=ON)
+p = mdb.models['elastic_plate_2D'].parts['elastic_hole_plate']
+session.viewports['Viewport: 1'].setValues(displayedObject=p)
+session.viewports['Viewport: 1'].setValues(displayedObject=None)
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+#: Warning: The selected Primary Variable is not available in the current frame for any elements in the current display group.
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.120831, 
+    farPlane=0.203803, width=0.120447, height=0.0552247, cameraPosition=(
+    -0.078498, 0.0106269, 0.123257), cameraUpVector=(-0.0447213, 0.94233, 
+    -0.331683), cameraTarget=(0.027669, 0.0302084, -0.000377391))
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+#: Warning: The selected Primary Variable is not available in the current frame for any elements in the current display group.
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.12556, 
+    farPlane=0.2027, width=0.0320837, height=0.0147103, viewOffsetX=-0.0105527, 
+    viewOffsetY=-0.0105)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.139213, 
+    farPlane=0.204187, width=0.0355724, height=0.0163098, cameraPosition=(
+    -0.117981, 0.0557315, 0.0920907), cameraUpVector=(0.199344, 0.804724, 
+    -0.559179), cameraTarget=(0.028212, 0.0372673, 0.0197927), 
+    viewOffsetX=-0.0117002, viewOffsetY=-0.0116418)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.135777, 
+    farPlane=0.207623, width=0.0509109, height=0.0233425, 
+    viewOffsetX=-0.0257047, viewOffsetY=-0.0176086)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.14024, 
+    farPlane=0.204088, width=0.0525846, height=0.0241099, cameraPosition=(
+    -0.0929008, 0.0427013, 0.127229), cameraUpVector=(0.241036, 0.903691, 
+    -0.353899), cameraTarget=(0.0364032, 0.0295026, 0.0269966), 
+    viewOffsetX=-0.0265498, viewOffsetY=-0.0181874)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.138864, 
+    farPlane=0.205464, width=0.0632032, height=0.0289785, 
+    viewOffsetX=-0.0348275, viewOffsetY=-0.0181923)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.138302, 
+    farPlane=0.206026, width=0.0629474, height=0.0288612, cameraPosition=(
+    -0.091794, 0.039451, 0.129085), cameraUpVector=(0.287562, 0.91124, 
+    -0.294872), cameraTarget=(0.03751, 0.0262523, 0.0288524), 
+    viewOffsetX=-0.0346866, viewOffsetY=-0.0181187)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.13169, 
+    farPlane=0.187313, width=0.0599381, height=0.0274815, cameraPosition=(
+    0.00433019, 0.0608241, 0.160218), cameraUpVector=(0.364375, 0.800763, 
+    -0.475404), cameraTarget=(0.0590672, 0.0162654, 0.0120332), 
+    viewOffsetX=-0.0330284, viewOffsetY=-0.0172525)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.142318, 
+    farPlane=0.176566, width=0.0647755, height=0.0296994, cameraPosition=(
+    0.0828528, 0.0372117, 0.152672), cameraUpVector=(-0.0928401, 0.918782, 
+    -0.383694), cameraTarget=(0.053528, 0.0265029, -0.00846672), 
+    viewOffsetX=-0.035694, viewOffsetY=-0.0186449)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.14733, 
+    farPlane=0.171553, width=0.0265071, height=0.0121534, 
+    viewOffsetX=-0.0423582, viewOffsetY=-0.0210065)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR27_SIG_H', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.14782, 
+    farPlane=0.171063, width=0.0265952, height=0.0121938, 
+    viewOffsetX=-0.0428552, viewOffsetY=-0.0209808)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR37_CT_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR37_CT_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=16 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=17 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=18 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=19 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=18 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=17 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=16 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=15 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=14 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=13 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=12 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=11 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=10 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=9 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=8 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=9 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=10 )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.147039, 
+    farPlane=0.171845, width=0.0318506, height=0.0146034, 
+    viewOffsetX=-0.042052, viewOffsetY=-0.0208796)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.132063, 
+    farPlane=0.18682, width=0.12958, height=0.0594122, viewOffsetX=-0.0244645, 
+    viewOffsetY=-0.00978718)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.133581, 
+    farPlane=0.185919, width=0.131069, height=0.0600949, cameraPosition=(
+    0.0745481, 0.0343002, 0.155973), cameraUpVector=(-0.0589327, 0.925278, 
+    -0.374683), cameraTarget=(0.0542431, 0.0262626, -0.00670267), 
+    viewOffsetX=-0.0247456, viewOffsetY=-0.00989966)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.132778, 
+    farPlane=0.191956, width=0.130281, height=0.0597335, cameraPosition=(
+    0.0257249, 0.00776287, 0.164652), cameraUpVector=(0.108671, 0.969464, 
+    -0.21984), cameraTarget=(0.0560934, 0.0244115, 0.00421213), 
+    viewOffsetX=-0.0245968, viewOffsetY=-0.00984012)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.136575, 
+    farPlane=0.186144, width=0.134006, height=0.0614415, cameraPosition=(
+    0.0417685, 0.0236154, 0.163739), cameraUpVector=(-0.127046, 0.945247, 
+    -0.300612), cameraTarget=(0.0534606, 0.0310549, 0.000189424), 
+    viewOffsetX=-0.0253001, viewOffsetY=-0.0101215)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.128198, 
+    farPlane=0.188237, width=0.125787, height=0.0576729, cameraPosition=(
+    0.0348941, 0.0557138, 0.159254), cameraUpVector=(-0.0645992, 0.869683, 
+    -0.489366), cameraTarget=(0.0542545, 0.0295388, -0.00161999), 
+    viewOffsetX=-0.0237483, viewOffsetY=-0.00950069)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.12589, 
+    farPlane=0.189169, width=0.123522, height=0.0566346, cameraPosition=(
+    0.0269541, 0.0600605, 0.158317), cameraUpVector=(0.0670126, 0.853781, 
+    -0.516302), cameraTarget=(0.0559184, 0.0263237, 0.000319215), 
+    viewOffsetX=-0.0233208, viewOffsetY=-0.00932965)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.129877, 
+    farPlane=0.184562, width=0.127434, height=0.0584285, cameraPosition=(
+    0.0530027, 0.0638906, 0.154749), cameraUpVector=(-0.0623841, 0.842575, 
+    -0.534954), cameraTarget=(0.054287, 0.0273308, -0.0052578), 
+    viewOffsetX=-0.0240595, viewOffsetY=-0.00962516)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.123497, 
+    farPlane=0.190943, width=0.155838, height=0.0714514, 
+    viewOffsetX=-0.0216796, viewOffsetY=-0.00348685)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR27_SIG_H', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.142539, 
+    farPlane=0.171901, width=0.04074, height=0.0186792, viewOffsetX=-0.0403917, 
+    viewOffsetY=-0.0181038)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.145655, 
+    farPlane=0.176639, width=0.0416304, height=0.0190874, cameraPosition=(
+    0.0280835, 0.0581615, 0.161629), cameraUpVector=(-0.141371, 0.861394, 
+    -0.487868), cameraTarget=(0.0513426, 0.0344556, 0.000888456), 
+    viewOffsetX=-0.0412745, viewOffsetY=-0.0184995)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.149858, 
+    farPlane=0.182207, width=0.0428316, height=0.0196382, cameraPosition=(
+    0.00611595, 0.0372245, 0.167981), cameraUpVector=(-0.0108685, 0.921973, 
+    -0.387101), cameraTarget=(0.0527792, 0.0310963, 0.0107379), 
+    viewOffsetX=-0.0424655, viewOffsetY=-0.0190333)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.149668, 
+    farPlane=0.182396, width=0.0427773, height=0.0196133, cameraPosition=(
+    0.00673744, 0.0361159, 0.168209), cameraUpVector=(0.0116444, 0.924697, 
+    -0.380526), cameraTarget=(0.0534007, 0.0299877, 0.0109655), 
+    viewOffsetX=-0.0424117, viewOffsetY=-0.0190092)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.147259, 
+    farPlane=0.184806, width=0.0548277, height=0.0251383, 
+    viewOffsetX=-0.0496825, viewOffsetY=-0.0197119)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.150214, 
+    farPlane=0.181852, width=0.0415752, height=0.0190621, 
+    viewOffsetX=-0.0481889, viewOffsetY=-0.0200277)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.143219, 
+    farPlane=0.191445, width=0.0396394, height=0.0181745, cameraPosition=(
+    -0.0250424, 0.0531727, 0.161281), cameraUpVector=(0.145649, 0.880295, 
+    -0.451517), cameraTarget=(0.0511278, 0.0291714, 0.0178842), 
+    viewOffsetX=-0.0459451, viewOffsetY=-0.0190952)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.152609, 
+    farPlane=0.21943, width=0.0422383, height=0.0193661, cameraPosition=(
+    -0.118046, 0.00823464, 0.121426), cameraUpVector=(0.150571, 0.973015, 
+    -0.174841), cameraTarget=(0.024573, 0.0282453, 0.0426855), 
+    viewOffsetX=-0.0489574, viewOffsetY=-0.0203471)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.148947, 
+    farPlane=0.21195, width=0.0412249, height=0.0189014, cameraPosition=(
+    -0.111444, 0.0437526, 0.121481), cameraUpVector=(0.260419, 0.915176, 
+    -0.307628), cameraTarget=(0.029842, 0.0353917, 0.0383604), 
+    viewOffsetX=-0.0477828, viewOffsetY=-0.0198589)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.151212, 
+    farPlane=0.215416, width=0.0418517, height=0.0191888, cameraPosition=(
+    -0.0983377, 0.00624408, 0.138084), cameraUpVector=(0.141341, 0.976522, 
+    -0.162563), cameraTarget=(0.0328462, 0.0272382, 0.0416959), 
+    viewOffsetX=-0.0485094, viewOffsetY=-0.0201609)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.150617, 
+    farPlane=0.206556, width=0.041687, height=0.0191134, cameraPosition=(
+    -0.0795751, 0.0238513, 0.149023), cameraUpVector=(0.158863, 0.953093, 
+    -0.257635), cameraTarget=(0.0404699, 0.0310512, 0.0373178), 
+    viewOffsetX=-0.0483185, viewOffsetY=-0.0200816)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.12167, 
+    farPlane=0.181823, width=0.0336753, height=0.01544, cameraPosition=(
+    0.0423299, 0.148882, 0.103433), cameraUpVector=(-0.144235, 0.47192, 
+    -0.869763), cameraTarget=(0.0635199, 0.0431815, -0.0203376), 
+    viewOffsetX=-0.0390322, viewOffsetY=-0.0162221)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.10398, 
+    farPlane=0.186694, width=0.0287791, height=0.0131951, cameraPosition=(
+    0.127122, 0.140897, 0.0286153), cameraUpVector=(-0.53433, 0.388255, 
+    -0.750833), cameraTarget=(0.0415916, 0.0217169, -0.0450148), 
+    viewOffsetX=-0.0333571, viewOffsetY=-0.0138635)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.122687, 
+    farPlane=0.175016, width=0.0339567, height=0.015569, cameraPosition=(
+    0.0495327, 0.137822, 0.111433), cameraUpVector=(-0.0576571, 0.553863, 
+    -0.830609), cameraTarget=(0.0695175, 0.0415693, -0.020008), 
+    viewOffsetX=-0.0393583, viewOffsetY=-0.0163577)
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.127393, 
+    farPlane=0.200867, width=0.0238901, height=0.0109535, 
+    viewOffsetX=-0.00910846, viewOffsetY=-0.00855739)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR27_SIG_H', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=252 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=253 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=254 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=255 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=256 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=257 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=256 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=255 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=254 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=253 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=252 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=251 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=250 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=249 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=0 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=268 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=269 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=270 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=271 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=272 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=272 )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR35_C_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.128151, 
+    farPlane=0.20011, width=0.0165791, height=0.00760145, 
+    viewOffsetX=-0.0105817, viewOffsetY=-0.00931076)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR37_CT_MOL', outputPosition=INTEGRATION_POINT, )
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.121319, 
+    farPlane=0.206942, width=0.0575549, height=0.0263888, 
+    viewOffsetX=-0.0029212, viewOffsetY=-0.00489109)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR27_SIG_H', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.125869, 
+    farPlane=0.202391, width=0.0302329, height=0.0138617, 
+    viewOffsetX=-0.00731037, viewOffsetY=-0.00820189)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.127755, 
+    farPlane=0.200506, width=0.0189466, height=0.00868694, 
+    viewOffsetX=-0.0118803, viewOffsetY=-0.00945398)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.163182, 
+    farPlane=0.19408, width=0.0242006, height=0.0110959, cameraPosition=(
+    -0.0335113, 0.0483144, 0.168578), cameraUpVector=(-0.36355, 0.751091, 
+    -0.551085), cameraTarget=(0.027343, 0.0389776, 0.0164266), 
+    viewOffsetX=-0.0151748, viewOffsetY=-0.0120756)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.159976, 
+    farPlane=0.197286, width=0.0370368, height=0.0169813, 
+    viewOffsetX=-0.0356494, viewOffsetY=-0.01372)
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.161845, 
+    farPlane=0.195417, width=0.0258491, height=0.0118517, 
+    viewOffsetX=-0.0370329, viewOffsetY=-0.014365)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR37_CT_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR35_C_MOL', outputPosition=INTEGRATION_POINT, )
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.120163, 
+    farPlane=0.208098, width=0.0645161, height=0.0295804, 
+    viewOffsetX=-0.00508582, viewOffsetY=-0.00535983)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.127393, 
+    farPlane=0.200867, width=0.0211093, height=0.00967855, 
+    viewOffsetX=-0.0105702, viewOffsetY=-0.00926954)
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=3 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=3 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=3 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=3 )
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=3 )
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.120163, 
+    farPlane=0.208098, width=0.0645161, height=0.0295804, 
+    viewOffsetX=-0.00873186, viewOffsetY=-0.00677968)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR35_C_MOL', outputPosition=INTEGRATION_POINT, )
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.122841, 
+    farPlane=0.20542, width=0.0484039, height=0.022193, 
+    viewOffsetX=-0.00991866, viewOffsetY=-0.00762127)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )
+#: Warning: The output database 'C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb' disk file has changed.
+#: 
+#: The current plot operation has been canceled, re-open the file to view the results
+o1 = session.openOdb(
+    name='C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb')
+session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+#: Model: C:/LocalUserData/User-data/nguyenb5/Hydrogen-Embrittlement-Subroutine-Aachen/elastic_plate_3D/elastic_plate_3D_processed.odb
+#: Number of Assemblies:         1
+#: Number of Assembly instances: 0
+#: Number of Part instances:     1
+#: Number of Meshes:             1
+#: Number of Element Sets:       7
+#: Number of Node Sets:          6
+#: Number of Steps:              1
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+    CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].view.setValues(nearPlane=0.117466, 
+    farPlane=0.210794, width=0.080779, height=0.037037, 
+    viewOffsetX=-0.000240305, viewOffsetY=-0.00306456)
+session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+    variableLabel='SDV_AR36_CL_MOL', outputPosition=INTEGRATION_POINT, )

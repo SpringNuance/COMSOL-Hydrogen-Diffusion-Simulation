@@ -1,0 +1,46 @@
+<Description>
+   ABQcaeG.exe / rank 0 / thread 0  encountered an unhandled exception
+
+</Description>
+
+<Context>
+   ABQcaeG
+</Context>
+
+<Callstack>
+  1)  KERNELBASE.dll              RaiseException                          
+  2)  VCRUNTIME140.dll            CxxThrowException                       
+  3)  ABQSMAInbVwrIPC.dll         ipc_Socket::Disconnect                  
+  4)  ABQSMAIngVwrGui.dll         SMAIngGui_finalize                      
+  5)  ABQSMAIngVwrGui.dll         SMAIngVwrGui_finalize                   
+  6)  ABQSMAIngVwrGui.dll         DllMain                                 
+  7)  ABQSMAIngVwrGui.dll         SMAIngVwrGui_initializeC                
+  8)  ntdll.dll                   RtlActivateActivationContextUnsafeFast  
+  9)  ntdll.dll                   LdrShutdownProcess                      
+ 10)  ntdll.dll                   RtlExitUserProcess                      
+</Callstack>
+
+<Memory>
+   <Current>            0 GB </Current>
+   <Resident>           0 GB </Resident>
+   <Physical>          15 GB </Physical>
+   <Limit>              0 GB </Limit>
+   <Accessible>        15 GB </Accessible>
+   <Available>          1 GB </Available>
+   <Allocator>            DL </Allocator>
+</Memory>
+
+<Swap>
+       <Size>          34 GB </Size>
+       <Used>          25 GB </Used>
+       <Free>           9 GB </Free>
+</Swap>
+
+<Directories>
+  <current> C:\LocalUserData\User-data\nguyenb5\Hydrogen-Embrittlement-Subroutine-Aachen\elastic_plate_3D </current> <free>     12 GB </free>   <used>    463 GB </used> 
+     <temp> C:\Users\nguyenb5\AppData\Local\Temp </temp>    <free>     12 GB </free>
+</Directories>
+
+<Installation>
+</Installation>
+

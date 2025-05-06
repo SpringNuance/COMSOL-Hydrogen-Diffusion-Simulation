@@ -1,0 +1,1061 @@
+C***********************************************************************
+C
+      SUBROUTINE KRATEFCN(AF,DAFDEP,EBARDOT0,EBARDOT)
+C
+C*** COMPUTES FUNCTION F AND DFDEBARP FOR STRAIN RATE EFFECT
+C
+      INCLUDE 'ABA_PARAM.INC'
+C
+      IFCN = 1 ! INTEGER FLAG FOR STRAIN RATE ACTIVATION (1 -> RATE-DEPENDENT && 0 -> RATE-INDEPENDENT)
+C
+      IF (IFCN.NE.1) THEN
+        AF = 0.D0
+        DAFDEP = 0.D0
+        GOTO 9995
+      END IF
+C
+C*** DEFINE STRAIN RATE MODEL
+C
+      ALPHA = 1.D-7
+      AMEXP = 1.D0
+C
+      AF = ALPHA*(EBARDOT/EBARDOT0)**AMEXP
+      DAFDEP = AMEXP*AF/EBARDOT
+C
+9995  CONTINUE
+      END
+C
+
+C***********************************************************************
+C
+      SUBROUTINE KYCURVE(YIELD,H,HC,DD,EBAR,CL,EXPO,E0,SIG0,PROPS,
+     + NPROPS,ETA,AVGETA,AVGTHETA,PS1,PDDT,AIDDT,EBART,AIDD,PDD,SYI,
+     + EPCL,SC,C1,C2,C3,C4,ETAC,GF,D1,D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,
+     + DCRT,DCR,CTT,DTIME,IWR,IOUT,DDH,SYD,DCOMB,SCFCN,FFLAGCL,FFLAGD,
+     + CTOR,DSTAR)
+C
+C*** COMPUTES FLOW STRESS YIELD (CAPITAL SY(C,EBARP)) AND
+C    ITS DERIVATIVES (H, HC) WRT EBARP AND CTOTAL
+C
+      INCLUDE 'ABA_PARAM.INC'
+      DIMENSION PROPS(NPROPS)
+C
+      IHYDRO = 1 ! INTEGER FLAG FOR HYDROGEN EFFECT ON SY (1 -> 2-WAY COUPLING && 0 -> 1-WAY COUPLING)
+      IPLDMG = 1 ! INTEGER FLAG FOR MBW PLASTICITY DAMAGE (1 -> DAMAGE ACTIVE  && 0 -> NO MBW DAMAGE)
+C
+      CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBAR,CL,PROPS,
+     + NPROPS,DTIME)
+      CTOTAL = CL + CT
+      DCDEP = DCTDEP
+C
+C*** CALCULATE SYSMALL, DSYSMALLDEP
+C    
+      AFITA = 0.3850D0
+      AFITB = 9.5341D0
+      EBAR1 = 0.11D0
+      HH1   = 1.2861D0
+      SS1   = 1.25011D0
+      IF (EBAR.GT.EBAR1) THEN
+        SYSMALL      = SIG0*(SS1 + HH1*(EBAR-EBAR1))   
+        DSYSMALLDEP  = SIG0*HH1                                
+      ELSE
+        SYSMALL      = SIG0*(1.D0+AFITA*(1.D0-DEXP(-AFITB*EBAR)))  
+        DSYSMALLDEP  = SIG0*AFITA*AFITB*DEXP(-AFITB*EBAR)          
+      END IF  
+C
+C*** CALCULATE DAMAGE DUE TO HYDROGEN (IHYDRO=0 LEADS TO DDH=0)
+C     
+      CALL KHYDRODMG(DDH,F,DFDC,SCFCN,BBH,SC,CTOTAL,IHYDRO,IWR,IOUT)
+C
+C*** CALCULATE DAMAGE FROM MBW (IPLDMG=0 LEADS TO DD=0)
+C 
+       CALL KDAMAGE(DD,SYSMALL,EBAR,ETA,AVGETA,AVGTHETA,PS1,PDDT,
+     + AIDDT,EBART,AIDD,PDD,SYI,EPCL,SCFCN,C1,C2,C3,C4,ETAC,GF,D1,
+     + D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,IPLDMG,IHYDRO,DDH,
+     + DCOMB,FFLAGCL,FFLAGD,BBH,DSTAR,IWR,IOUT)
+C
+      YIELD = F*SYSMALL                          ! CAPITAL SY
+      H     = DFDC*DCDEP*SYSMALL + F*DSYSMALLDEP ! DSYDEP
+      HC    = DFDC*SYSMALL                       ! DSYDCTOTAL
+      SYD   = (1.D0 - DD)*SYSMALL
+C 
+      END
+C
+
+C***********************************************************************
+C
+      SUBROUTINE UMAT(STRESS,STATEV,DDSDDE,SSE,SPD,SCD,
+     + RPL,DDSDDT,DRPLDE,DRPLDT,
+     + STRAN,DSTRAN,TIME,DTIME,TEMP,DTEMP,PREDEF,DPRED,CMNAME,
+     + NDI,NSHR,NTENS,NSTATV,PROPS,NPROPS,COORDS,DROT,PNEWDT,
+     + CELENT,DFGRD0,DFGRD1,NOEL,NPT,LAYER,KSPT,KSTEP,KINC)
+C
+C
+C*** UMAT is called before UMATHT (if a UMATHT is used in the analysis)
+C
+C     DAMAGE MODEL WITH HYDROGEN EFFECTS.
+C
+C
+      use ktransfer
+      INCLUDE 'ABA_PARAM.INC'
+      include 'SMAAspUserSubroutines.hdr'
+      CHARACTER*8 CMNAME
+C
+      DIMENSION STRESS(NTENS),STATEV(NSTATV),
+     + DDSDDE(NTENS,NTENS),DDSDDT(NTENS),DRPLDE(NTENS),
+     + STRAN(NTENS),DSTRAN(NTENS),TIME(2),PREDEF(1),DPRED(1),
+     + PROPS(NPROPS),COORDS(3),DROT(3,3),DFGRD0(3,3),DFGRD1(3,3),
+     + AUXF(3,3),DEBARDE(NTENS)
+C
+C*** For 2D problems : QMX(4,4)
+C*** For 3D problems : QMX(6,6)
+C
+      DIMENSION QMX(kxmtrx,kxmtrx)
+C      
+      DIMENSION DEDEV(6),SDEVT(6),SEL(6),SDEV(6),AN(6),STRESST(6),
+     + AA(6)
+C
+      DIMENSION DETENS(3,3),DE(6),DROTTRAN(3,3),R(3,3)
+C      
+      DIMENSION xc(kxnodel),yc(kxnodel),zc(kxnodel),pn(kxnodel)
+C
+C*** STATE VARIABLES
+C
+C STATEV(1)  = EBAR     (EQUIVALENT PLASTIC STRAIN)
+C STATEV(2)  = YFLAG    (0 = ELASTICITY,   1 = PLASTICITY)
+C STATEV(3)  = CL       (LATTICE HYDROGEN CONCENTRATION - COMES FROM SOLUTION OF THERMAL PROBLEM)
+C STATEV(4)  = CT       (TRAP HYDROGEN CONCENTRATION)
+C STATEV(5)  = GRADPX   (X-COMPONENT OF PRESSURE GRADIENT GRADP)
+C STATEV(6)  = GRADPY   (Y-COMPONENT OF PRESSURE GRADIENT GRADP)
+C STATEV(7)  = CL + CT  (TOTAL HYDROGEN CONCENTRATION)
+C STATEV(8)  = CL0      (INITIAL LATTICE CONCENTRATION USED FOR THE CALCULATION OF U)
+C STATEV(9)  = DD       (DUCTILE DAMAGE VARIABLE)
+C STATEV(10) = AIDD     (DUCTILE DAMAGE INDICATOR - 1 = DD HAS INITIATED)
+C STATEV(11) = DFLAG    (FLAG FOR DUCTILE DAMAGE INIATION - 1 = DD HAS INITIATED)
+C STATEV(12) = AIF      (FAILURE INDICATOR - 1 = COMPLETE FAILURE HAS OCCURED)
+C STATEV(13) = FFLAG    (FLAG FOR FAILURE - 0 = COMPLETE FAILURE HAS OCCURED)
+C STATEV(14) = SYI      (YIELD STRESS AT FAILURE)
+C STATEV(15) = ETA      (STRESS TRIAXIALITY)
+C STATEV(16) = THETADEG (LODE ANGLE IN DEGREES)
+C STATEV(17) = QETA     (INCREMENTAL STRESS TRIAXIALITY - USED FOR CALCULATION OF AVGETA)   
+C STATEV(18) = QTHETA   (INCREMENTAL LODE ANGLE - USED FOR CALCULATION OF AVGTHETA)
+C STATEV(19) = DCR      (CRITICAL VALUE FOR DUCTILE DAMAGE PARAMETER)
+C STATEV(20) = PDD      (=DD)
+C STATEV(21) = U        (INTERNAL ENERGY, STORED IN UMATHT)
+C STATEV(22) = YIELD    (FLOW STRESS FOR DAMAGED MATERIAL - YIELD = (1-DD)*SYUNDMG)
+C STATEV(23) = RHO      (CURRENT DENSITY)
+C STATEV(24) = THETAL   (RATIO OF THE OCCUPIED LATTICE SITES TO THE TOTAL AVAILABLE)
+C STATEV(25) = THETAT   (RATIO OF THE OCCUPIED TRAP SITES TO THE TOTAL AVAILABLE)
+C STATEV(26) = DDH      (HYDROGEN DAMAGE)
+C STATEV(27) = AMU      (CHEMICAL POTENTIAL)
+C STATEV(28) = SYD      (PLASTICITY DAMAGE FACTOR (1-DD)*SIGMAYSMALL IN FLOW STRESS)
+C STATEV(29) = DCOMB    (TOTAL DAMAGE DUE TO COMBINED DAMAGE MECHANISMS)
+C STATEV(30) = SCFCN    (CRITICAL CLEAVAGE STRESS AS A FUNCTION OF HYDROGEN CONCENTRATION)
+C STATEV(31) = DIFFS    (DIFFERENCE OF MAX PRINCIPAL STRESS (PS1) AND CLEAVAGE STRESS (SCFCN))
+C STATEV(32) = FFLAGCL  (FLAG FOR CLEAVAGE FRACTURE - 1 = BRITTLE FAILURE HAS OCCURED)
+C STATEV(33) = FFLAGD   (FLAG FOR DUCTILE FRACTURE  - 1 = DUCTILE FAILURE HAS OCCURED)
+C STATEV(34) = CTOR     (CT AS CALCULATED FROM ORIANI'S RELATION) 
+C STATEV(35) = EBARDOT  (RATE OF EQUIVALENT PLASTIC STRAIN)
+C STATEV(36) = HEFF     (EFFECTIVE HARDENING MODULUS)
+C STATEV(37) = SPRMAX   (MAXIMUM PRINCIPAL STRESS DEVELOPED AT THIS POINT)
+C STATEV(38) = DSTAR    (MODIFIED DD TO QUICKLY DECREASE SMISES BY 95% BEFORE DELETING ELEMENTS - DSTAR = DD BEFORE AIF=1 - ONLY USED IN EXPLICIT)
+C
+C STATEV (3), (5)-(8), (21) & (24), (25) are updated in UMATHT
+C
+C
+C*** PROPERTIES:
+C      
+C PROPS(1)  = YOUNG'S MODULUS (E)
+C PROPS(2)  = POISSON'S RATIO (ANU)
+C PROPS(3)  = INITIAL YIELD STRESS (SIG0)
+C PROPS(4)  = HARDENING EXPONENT (EXPO)
+C PROPS(5)  = SIG0/E
+C PROPS(6)  = NORMALIZING CONCENTRATION (C0)
+C PROPS(7)  = LATTICE DIFUSION CONSTANT (D)
+C PROPS(8)  = PARTIAL MOLAR VOLUME OF HYDROGEN (VH)
+C PROPS(9)  = EQUILIBRIUM CONSTANT (KT)
+C PROPS(10) = H ATOMS/TRAP (ALPHA)
+C PROPS(11) = NUMBER OF HOST ATOMOS/LATTICE VOLUME (ANL)      
+C PROPS(12) = NILS PER HOST ATOM (BETA)
+C PROPS(13) = CONSTANT LAMBDA   
+C PROPS(14) = CLEAVAGE PLASTIC STRAIN (EPCL)
+C PROPS(15) = CRITICAL CLEAVAGE STRESS (SC)
+C PROPS(16) - PROPS(19) = CONSTANTS FOR EPI (C1-C4)
+C PROPS(20) = CRITICAL STRESS TRIAXIALITY (ETAC)
+C PROPS(21) = MATERIAL PARAMETER GF
+C PROPS(22) - PROPS(25) = CONSTANTS FOR DCR (C1-C4)
+C PROPS(26) = INITIAL DENSITY RHO0
+C PROPS(27) = HYDROGEN JUMP FREQUENCY (ALFREQ)
+C PROPS(28) = SCALE FACTOR FOR DIFFUSION PROBLEM IN CASE OF ZERO HEAT FLUX (SFD - DEFAULT=1.D0)
+C PROPS(29) = REFERENCE PRESSURE FOR CHEMICAL POTENTIAL (P00)
+C PROPS(30) = REFERENCE CHEMICAL POTENTIAL (AMU0)  
+C PROPS(31) = REFERENCE STRAIN RATE (EBARDOT0)
+C
+      IWR=0           ! FLAG TO ACTIVATE PRINTING (1=YES, 0=NO)
+      IELASTIC=0      ! FLAG TO USE ELASTIC STIFFNESS TWICE IN 1ST ITERATION (1=YES, 0=NO)
+      IOUT=7          ! IOUT=7 WRITES ON THE .msg FILE
+      ASMALL = 1.D-36 ! ABAQUS ZERO
+      ABIG   = 1.D-36 ! ABAQUS INFINITY
+C      IF (NOEL.EQ.100.AND.NPT.EQ.1) IWR=1
+C
+C*** Recall that subroutines are called twice in 1st iteration and once in all subsequent
+      IF (IELASTIC.NE.0) THEN
+        call MutexLock(12)
+        ITER = ITERMTX(NOEL,NPT)
+        IF (ITER.LE.1) THEN
+          ITERMTX(NOEL,NPT) = ITER + 1
+        ELSE
+          IELASTIC = 0
+        END IF
+        call MutexUnlock(12)
+      END IF
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) '----------------------------'  
+        WRITE(IOUT,*) ' CALCULATIONS IN UMAT BEGIN'
+        WRITE(IOUT,*) '----------------------------'  
+        WRITE(IOUT,*) ' KSTEP, KINC'
+        WRITE(IOUT,1002) KSTEP,KINC
+        WRITE(IOUT,*) ' STEP-TIME, TOTAL-TIME, DTIME'
+        WRITE(IOUT,1001) TIME(1),TIME(2),DTIME
+        WRITE(IOUT,*) ' NOEL, NPT'
+        WRITE(IOUT,1002) NOEL,NPT
+      END IF
+C
+      PI = 4.D0*DATAN(1.D0)
+C
+      E       = PROPS(1)
+      ANU     = PROPS(2)
+      SIG0    = PROPS(3)
+      EXPO    = PROPS(4)
+      E0      = PROPS(5)
+      C0      = PROPS(6)
+      VH      = PROPS(8)
+      AKT     = PROPS(9)
+      ALPHA   = PROPS(10)
+      ANL     = PROPS(11)
+      BETA    = PROPS(12)
+      ALAMBDA = PROPS(13)
+      EPCL    = PROPS(14)
+      SC      = PROPS(15)
+      C1      = PROPS(16)
+      C2      = PROPS(17)
+      C3      = PROPS(18)
+      C4      = PROPS(19)
+      ETAC    = PROPS(20)
+      GF      = PROPS(21)
+      D1      = PROPS(22)
+      D2      = PROPS(23)
+      D3      = PROPS(24)
+      D4      = PROPS(25)
+      RHO0    = PROPS(26)
+      SFD     = PROPS(28)
+      P00     = PROPS(29)
+      AMU0    = PROPS(30)
+      EBARDOT0= PROPS(31)
+C      
+      G    = E/(2.D0*(1.D0+ANU))
+      AK   = E/(3.D0*(1.D0-2.D0*ANU))
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)   'E,ANU,SIG0,EXPO,E0,C0,ANL,ALAMBDA'
+        WRITE(IOUT,1001) E,ANU,SIG0,EXPO,E0,C0,ANL,ALAMBDA
+        WRITE(IOUT,*)   'G,AK'
+        WRITE(IOUT,1001) G,AK
+      END IF
+C
+      EBART    = STATEV(1)
+      YFLAG    = STATEV(2)
+      CLT      = STATEV(3)
+      CTT      = STATEV(4)
+      AIDDT    = STATEV(10) 
+      DFLAG    = STATEV(11)
+      AIFT     = STATEV(12) 
+      FFLAG    = STATEV(13)
+      SYI      = STATEV(14)
+      ETAT     = STATEV(15)
+      THETADEGT= STATEV(16)
+      THETARADT= THETADEGT*PI/180.D0
+      QETAT    = STATEV(17)
+      QTHETAT  = STATEV(18)
+      DCRT     = STATEV(19)
+      PDDT     = STATEV(20)
+      DCOMBT   = STATEV(29)
+      FFLAGCLT = STATEV(32)
+      FFLAGDT  = STATEV(33)
+      CTORT    = STATEV(34)
+      EBARDOTT = STATEV(35)
+      SPRMAXT  = STATEV(37)
+C
+      CLT = TEMP
+      DCL = DTEMP
+      CL = CLT + DCL
+C
+      IF (CL.LT.1.D-6)  THEN
+        CL=1.D-6
+        IF (IWR.NE.0) THEN
+          WRITE(6,*) 'CL NEGATIVE'
+          WRITE(6,*) 'NOEL, NPT, KSTEP, KINC'
+          WRITE(6,1002) NOEL,NPT,KSTEP,KINC
+        END IF
+      END IF
+C
+C         
+C*** Provision in order to avoid storing random values at the end of the increment for these variables
+C*** In KDAMAGE there might be cases where these are not updated in certain if statements
+C
+      DCOMB   = DCOMBT
+      PDD     = PDDT
+      DD      = PDD
+      AIF     = AIFT
+      AIDD    = AIDDT
+      FFLAGCL = FFLAGCLT 
+      FFLAGD  = FFLAGDT
+      CTOR    = CTORT
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'EBART, YFLAG, CLT, CTT'
+        WRITE(IOUT,1001) EBART, YFLAG, CLT, CTT
+      END IF
+C
+C*** stresses at start of increment
+      STRESST = STRESS
+C
+C*** remove Hughes-Winget rotation
+      DROTTRAN = TRANSPOSE(DROT)
+      CALL KROTSTRS(STRESST,DROTTRAN,QMX,NTENS)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'STRESSES WITH HUGHES-WINGET ROTATION REMOVED'
+        WRITE(IOUT,1001) (STRESST(I), I=1,NTENS)
+      END IF
+C
+C*** CALCULATE MAXIMUM STRESS AND AVGETA, AVGTHETA
+C
+      CALL KPRINCIPAL(STRESST,PS1,NDI,NSHR,NTENS)
+      IF (PS1.GT.SPRMAXT) THEN
+        SPRMAX = PS1
+      ELSE
+        SPRMAX = SPRMAXT
+      END IF
+C
+      THETABART = -(6.D0*THETARADT)/PI
+C
+      IF (EBART.NE.0.D0) THEN
+        AVGETA = QETAT/EBART
+        AVGTHETA = QTHETAT/EBART
+      ELSE
+        AVGETA = 0.D0
+        AVGTHETA = 0.D0
+      END IF
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'PRINCIPAL STRESS 1'
+        WRITE(IOUT,1001) PS1
+        WRITE(IOUT,*) 'AVGETA, AVGTHETA'
+        WRITE(IOUT,1001) AVGETA, AVGTHETA
+      END IF 
+C
+      IF (KINC.EQ.1) THEN
+C*** form elastic stiffness
+        Z1 = 2.D0*G
+        Z2 = 3.D0*AK
+        DO I=1,NTENS
+        DO J=1,NTENS
+          CEL(I,J) = Z1*AKMX(I,J) + Z2*AJMX(I,J)
+        END DO
+        END DO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'CEL'
+          DO I=1,NTENS
+            WRITE(IOUT,1001) (CEL(I,J),J=1,NTENS)
+          END DO
+        END IF
+      END IF
+C
+      IF (KSTEP.EQ.1.AND.KINC.EQ.1) THEN
+C*** form c_0
+        EBAR0 = 0.D0
+        CALL KNT(ANT,DANTDE,EBAR0,PROPS,NPROPS)
+        CLT   = STATEV(3)
+        CTT   = (ALPHA*ANT)/(1.D0 + (BETA*ANL)/(AKT*CLT)) ! CT Calculated from Steady State Value Here
+        STATEV(4) = CTT
+      END IF
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'DFGRD0'
+        DO I=1,3
+          WRITE(IOUT,1001) (DFGRD0(I,J),J=1,3)
+        ENDDO
+        WRITE(IOUT,*) 'DFGRD1'
+        DO I=1,3
+          WRITE(IOUT,1001) (DFGRD1(I,J),J=1,3)
+        ENDDO
+      END IF
+C
+C*** CALCULATE CURRENT DENSITY RHO
+C
+      AUXF  = DFGRD1
+      AJDET = AUXF(1,1)*(AUXF(2,2)*AUXF(3,3) - AUXF(3,2)*AUXF(2,3))
+     +      - AUXF(1,2)*(AUXF(2,1)*AUXF(3,3) - AUXF(3,1)*AUXF(2,3))
+     +      + AUXF(1,3)*(AUXF(2,1)*AUXF(3,2) - AUXF(3,1)*AUXF(2,2))
+      RHO = RHO0/AJDET
+C
+      AUX = 0.D0
+      DO I=1,3
+      DO J=1,3
+        AUX = AUX + DABS(DFGRD1(I,J)-DFGRD0(I,J))
+      END DO
+      END DO
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'norm |DFGRD1-DFGRD0|'
+        WRITE(IOUT,1001) AUX
+      END IF
+      IF (AUX.GT.ASMALL) GOTO 29
+C
+C
+C
+C
+C
+C*** DE=0 needs only DDSDDE and DDSDDT, DRPLDE, DRPLDT 
+C*** UPDATE CT (IN CASE OF NO MECHANICAL LOAD IT STILL NEEDS TO TAKE ITS EQUILIBRIUM VALUE)
+C
+      IF (YFLAG.EQ.0.OR.IELASTIC.EQ.1) THEN
+C*** ELASTICITY
+        DDSDDE = CEL
+        DO I=1,NTENS
+          DDSDDT(I) = 0.D0
+          DO J=1,NTENS
+            DDSDDE(I,J) = DDSDDE(I,J) + STRESST(I)*DELTA(J)
+          ENDDO
+        ENDDO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'DEMAG=0, ELASTIC DDSDDE'
+          DO I=1,NTENS
+            WRITE(IOUT,1001) (DDSDDE(I,J),J=1,NTENS)
+          ENDDO
+          WRITE(IOUT,*) 'DEMAG=0, ELASTIC DDSDDT'
+          WRITE(IOUT,1001) (DDSDDT(I),I=1,NTENS)
+        END IF
+C
+        CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBART,CL,PROPS,
+     + NPROPS,DTIME)
+        DRPLDT = -dCTdCL/DTIME
+        DRPLDE = 0.D0
+        RPL    = -(CT - CTT)/DTIME 
+C
+C*** change order of magnitude of heat equation to avoid zero heat flux in solver
+C*** default value of SFD = 1.D0 in cases where we have no zero heat flux in solver
+        DRPLDT = DRPLDT*SFD
+        DRPLDE = DRPLDE*SFD
+        RPL    = RPL*SFD
+C
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'DEMAG=0, ELASTIC DRPLDE'
+          WRITE(IOUT,1001) (DRPLDE(I),I=1,NTENS)
+          WRITE(IOUT,*) 'DEMAG=0, ELASTIC DRPLDT'
+          WRITE(IOUT,1001) DRPLDT
+          WRITE(IOUT,*) 'DEMAG=0, RPL'
+          WRITE(IOUT,1001) RPL     
+        END IF
+C
+        CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBART,CL,PROPS,
+     + NPROPS,DTIME)
+        STATEV(4)  = CT
+        STATEV(34) = CTOR
+C
+      ELSE
+C
+C*** PLASTICITY
+        CALL KINVAR(STRESST,PT,SBAR,NDI,NSHR,NTENS)
+        AUX = 1.5D0/SBAR
+        CALL KVDEV(STRESST,SDEV,NDI,NSHR,NTENS)
+        DO I=1,NTENS
+          AN(I) = AUX*SDEV(I)
+        END DO
+C
+        EBAR = EBART
+        CALL KYCURVE(YIELD,H,HC,DD,EBAR,CLT,EXPO,E0,SIG0,PROPS,NPROPS,
+     + ETAT,AVGETA,AVGTHETA,PS1,PDDT,AIDDT,EBART,AIDD,PDD,SYI,EPCL,SC,
+     + C1,C2,C3,C4,ETAC,GF,D1,D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,
+     + CTT,DTIME,IWR,IOUT,DDH,SYD,DCOMB,SCFCN,FFLAGCL,FFLAGD,CTOR,DSTAR)
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'EBART, YIELD, HT, HCT, DD, DDH, DCOMB, SCFCN'
+          WRITE(IOUT,1001) EBART, YIELD, H, HC, DD, DDH, DCOMB, SCFCN
+        END IF
+C
+        CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBAR,CL,PROPS,
+     + NPROPS,DTIME)
+C
+        CALL KRATEFCN(AF,DAFDEP,EBARDOT0,EBARDOTT)
+C
+        HEFF = (1.D0 - DD)*((1.D0 + AF)*(H + HC*dCTdEP) +  
+     +         DAFDEP*(YIELD/DTIME)) - (1.D0 + AF)*YIELD*(SYI/GF)
+        AEL = 3.D0*G + HEFF
+        DO I=1,NTENS
+          AA(I) = (2.D0*G*AN(I))/AEL
+        END DO
+        AB  = ((1.D0 - DD)*HC*(1.D0 + dCTdCL))/AEL
+C
+        DO I=1,NTENS
+        DO J=1,NTENS
+          DDSDDE(I,J) = CEL(I,J) - 2.D0*G*AN(I)*AA(J)
+        END DO
+        END DO
+        DO I=1,NTENS
+        DO J=1,NTENS
+          DDSDDE(I,J) = DDSDDE(I,J) + STRESST(I)*DELTA(J)
+        ENDDO
+        ENDDO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'DEMAG=0, PLASTIC DDSDDE'
+          DO I=1,NTENS
+            WRITE(IOUT,1001) (DDSDDE(I,J),J=1,NTENS)
+          ENDDO
+        END IF
+C
+        DO I=1,NTENS
+          DDSDDT(I) = 2.D0*G*AB*AN(I)
+        END DO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'DEMAG=0, PLASTIC DDSDDT'
+          WRITE(IOUT,1001) (DDSDDT(I),I=1,NTENS)
+        END IF
+C
+        DEBARDCL = -AB
+        DO I=1,NTENS
+          DEBARDE(I) = AA(I)
+        END DO
+        DRPLDT = -(dCTdCL + dCTdEP*DEBARDCL)/DTIME
+        DO I=1,NTENS
+          DRPLDE(I) = -(dCTdEP*DEBARDE(I))/DTIME
+        END DO
+        RPL    = -(CT - CTT)/DTIME 
+C
+C*** change order of magnitude of heat equation to avoid zero heat flux in solver
+C*** default value of SFD = 1.D0 in cases where we have no zero heat flux in solver
+        DRPLDT = DRPLDT*SFD
+        DRPLDE = DRPLDE*SFD
+        RPL    = RPL*SFD
+C
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'DEMAG=0, PLASTIC DRPLDE'
+          WRITE(IOUT,1001) (DRPLDE(I),I=1,NTENS)
+          WRITE(IOUT,*) 'DEMAG=0, PLASTIC DRPLDT'
+          WRITE(IOUT,1001) DRPLDT
+          WRITE(IOUT,*) 'DEMAG=0, RPL'
+          WRITE(IOUT,1001) RPL     
+        END IF
+C
+      END IF
+C
+      GOTO 9999
+C
+C
+C
+C
+C
+C
+ 29   CONTINUE
+C
+C*** INTEGRATE ELASTOPLASTIC EQUATIONS
+C
+C*** Calculate pressure gradient
+C
+      xc=0.D0
+      yc=0.D0
+      zc=0.D0
+C        
+      IF (TIME(1).GT.0.D0) THEN
+        call MutexLock(8)   ! lock Mutex #8
+        DO inode=1,kxnodel
+          xc(inode) = coorT(IELCONN(noel,inode),1)
+          yc(inode) = coorT(IELCONN(noel,inode),2)
+          IF (kxdim.gt.2) zc(inode) = coorT(IELCONN(noel,inode),3)
+        ENDDO
+        DO i=1,kxnodel
+          pn(i) = PNODAL(IELCONN(noel,i))
+        ENDDO
+        IF (kxdim.eq.2) THEN
+            CALL KGRADP2D(noel,xc,yc,pn,npt)
+        ELSE
+            CALL KGRADP3D(noel,xc,yc,zc,pn,npt)
+        END IF
+        call MutexUnlock(8) ! unlock Mutex #8
+      END IF
+C
+C*** find logarithmic strain tensor DETENS and
+C    rotation tensor R associated with the increment
+      CALL KELOGR(DFGRD0,DFGRD1,DETENS,R)
+      DEKK = DETENS(1,1) + DETENS(2,2) + DETENS(3,3)
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'LOGARITHMIC STRAIN TENSOR DETENS'
+        DO I=1,3
+          WRITE(IOUT,1001) (DETENS(I,J),J=1,3)
+        ENDDO
+        WRITE(IOUT,*) 'DEKK'
+        WRITE(IOUT,1001) DEKK
+        WRITE(IOUT,*) 'ROTATION TENSOR R'
+        DO I=1,3
+          WRITE(IOUT,1001) (R(I,J),J=1,3)
+        ENDDO
+      END IF
+C
+      CALL KTTOV(DETENS,DE,NDI,NSHR,NTENS)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'DE VECTOR (TENSOR SHEAR COMPONENTS)'
+        WRITE(IOUT,1001) (DE(I),I=1,NTENS)
+      END IF
+C
+      DEMAG = 0.D0
+      DO I=1,NDI
+        DEMAG = DEMAG + DE(I)*DE(I)
+      END DO
+      DO I=1,NSHR
+        DEMAG = DEMAG + 2.D0*DE(NDI+I)*DE(NDI+I)
+      END DO
+      DEMAG = DSQRT(2.D0*DEMAG/3.D0)
+      DETOL = DEMAG*1.D-6
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'DEMAG'
+        WRITE(IOUT,1001) DEMAG
+        WRITE(IOUT,*) 'DETOL'
+        WRITE(IOUT,1001) DETOL
+      END IF
+C
+C*** find p and sigma_e at the start of the increment
+      CALL KINVAR(STRESST,PT,SBART,NDI,NSHR,NTENS)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'EBART, PT, SBART'
+        WRITE(IOUT,1001) EBART, PT, SBART
+      END IF
+C
+      DP = AK*DEKK
+      P  = PT + DP
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'DP, P'
+        WRITE(IOUT,1001) DP, P
+      END IF
+C
+      CALL KVDEV(STRESST,SDEVT,NDI,NSHR,NTENS)
+      CALL KVDEV(DE,DEDEV,NDI,NSHR,NTENS)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'DEDEV'
+        WRITE(IOUT,1001) (DEDEV(I),I=1,NTENS)
+        WRITE(IOUT,*) 'SDEVT'
+        WRITE(IOUT,1001) (SDEVT(I),I=1,NTENS)
+      END IF
+C
+      DO I=1,NTENS
+        SEL(I) = SDEVT(I) + 2.D0*G*DEDEV(I)
+      END DO
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'SEL'
+        WRITE(IOUT,1001) (SEL(I),I=1,NTENS)
+      END IF
+C
+      CALL KINVAR(SEL,P0,QEL,NDI,NSHR,NTENS)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'QEL'
+        WRITE(IOUT,1001) QEL
+      END IF
+C
+C*** check for yielding
+      EBAR = EBART
+      CALL KYCURVE(YIELD,H,HC,DD,EBAR,CL,EXPO,E0,SIG0,PROPS,NPROPS,
+     + ETAT,AVGETA,AVGTHETA,PS1,PDDT,AIDDT,EBART,AIDD,PDD,SYI,EPCL,SC,
+     + C1,C2,C3,C4,ETAC,GF,D1,D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,
+     + CTT,DTIME,IWR,IOUT,DDH,SYD,DCOMB,SCFCN,FFLAGCL,FFLAGD,CTOR,DSTAR)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'EBART, YIELD, H, HC, DD, DDH, DCOMB, SCFCN'
+        WRITE(IOUT,1001) EBART, YIELD, H, HC, DD, DDH, DCOMB, SCFCN
+      END IF
+      AUXYIELD = (1.D0 - DD)*YIELD
+      IF (QEL.LE.AUXYIELD) GOTO 1000  ! elastic increment
+      IF (QEL.GT.AUXYIELD) GOTO 2000  ! plastic increment
+C
+C
+C
+C
+C
+C*** ELASTICITY
+C
+ 1000 CONTINUE
+      IF (IWR.NE.0) WRITE(IOUT,*) 'ELASTICITY'
+      STRESS = SEL
+      DO I=1,NDI
+        STRESS(I) = STRESS(I) + P
+      END DO
+C
+      call MutexLock(9) ! lock Mutex #9
+      PELEM(NOEL,NPT)=P
+      call MutexUnlock(9) ! unlock Mutex #9
+C
+C***  rotate stresses
+      CALL KROTSTRS(STRESS,R,QMX,NTENS)
+      CALL KSLODE(ETA,THETADEG,STRESS,SIG0,NDI,NTENS)
+C      
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'STRESS'
+        WRITE(IOUT,1001) (STRESS(I),I=1,NTENS)
+        WRITE(IOUT,*) 'THETA AFTER ROTATION IN DEGREES'
+        WRITE(IOUT,1001) XLODE
+      END IF
+C
+      CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBART,CL,PROPS,
+     + NPROPS,DTIME)
+C
+*** calculate chemical potential for visualization purposes
+      AMU = AMU0 + DLOG(CL) - (P - P00)*VH
+C
+C*** update state variables
+      STATEV(2)  = 0.D0
+      STATEV(4)  = CT
+      STATEV(9)  = DD       
+      STATEV(10) = AIDD     
+      STATEV(11) = DFLAG   
+      STATEV(12) = AIF      
+      STATEV(13) = FFLAG    
+      STATEV(14) = SYI      
+      STATEV(15) = ETA     
+      STATEV(16) = THETADEG
+      STATEV(19) = DCR
+      STATEV(20) = PDD
+      STATEV(22) = YIELD
+      STATEV(23) = RHO
+      STATEV(26) = DDH
+      STATEV(27) = AMU
+      STATEV(28) = SYD
+      STATEV(29) = DCOMB
+      STATEV(30) = SCFCN
+      STATEV(31) = PS1 - SCFCN
+      STATEV(32) = FFLAGCL
+      STATEV(33) = FFLAGD
+      STATEV(34) = CTOR
+      STATEV(37) = SPRMAX
+      STATEV(38) = DSTAR
+C
+C*** update energies
+      SSE = QEL*QEL/(6.D0*G) + P*P/(2.D0*AK)
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'ELASTIC STRAIN ENERGY'
+        WRITE(IOUT,1001) SSE
+      END IF
+C
+C*** elastic Jacobian
+      DDSDDE = CEL
+      DO I=1,NTENS
+        DDSDDT(I) = 0.D0
+        DO J=1,NTENS
+          DDSDDE(I,J) = DDSDDE(I,J) + STRESS(I)*DELTA(J)
+        ENDDO
+      ENDDO
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'ELASTIC DDSDDE'
+        DO I=1,NTENS
+          WRITE(IOUT,1001) (DDSDDE(I,J),J=1,NTENS)
+        END DO
+        WRITE(IOUT,*) 'ELASTIC DDSDDT'
+        WRITE(IOUT,1001) (DDSDDT(I),I=1,NTENS)
+      END IF
+C
+      RPL    = -(CT - CTT)/DTIME 
+      DRPLDT = -dCTdCL/DTIME
+      DRPLDE = 0.D0
+C
+C*** change order of magnitude of heat equation to avoid zero heat flux in solver
+C*** default value of SFD = 1.D0 in cases where we have no zero heat flux in solver
+      DRPLDT = DRPLDT*SFD
+      DRPLDE = DRPLDE*SFD
+      RPL    = RPL*SFD
+C
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'ELASTIC DRPLDE'
+        WRITE(IOUT,1001) (DRPLDE(I),I=1,NTENS)
+        WRITE(IOUT,*) 'ELASTIC DRPLDT'
+        WRITE(IOUT,1001) DRPLDT
+        WRITE(IOUT,*) 'RPL'
+        WRITE(IOUT,1001) RPL     
+      END IF
+C
+      GOTO 8888
+C
+C
+C
+C
+C
+C*** PLASTICITY
+C
+ 2000 CONTINUE
+      IF (IWR.NE.0) WRITE(IOUT,*) 'PLASTICITY'
+C
+C*** first estimate for DEBAR
+      EBAR = EBART
+      CALL KYCURVE(YIELD,H,HC,DD,EBAR,CL,EXPO,E0,SIG0,PROPS,NPROPS,
+     + ETAT,AVGETA,AVGTHETA,PS1,PDDT,AIDDT,EBART,AIDD,PDD,SYI,EPCL,SC,
+     + C1,C2,C3,C4,ETAC,GF,D1,D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,
+     + CTT,DTIME,IWR,IOUT,DDH,SYD,DCOMB,SCFCN,FFLAGCL,FFLAGD,CTOR,DSTAR)
+      CALL KRATEFCN(AF,DAFDEP,EBARDOT0,EBARDOTT)
+      AUXA  = (1.D0 - DD)*YIELD
+      AUXB  = (1.D0 - DD)*H - (SYI/GF)*YIELD
+      AUXRATE = 1.D0 + AF - DAFDEP*EBARDOTT
+      DEBAR = (QEL - AUXA*AUXRATE)/(3.D0*G + AUXA*(DAFDEP/DTIME) + 
+     +         AUXB*AUXRATE)
+      EBAR  = EBART + DEBAR
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'FIRST ESTIMATE FOR DEBAR, EBAR'
+        WRITE(IOUT,1001) DEBAR,EBAR
+      END IF
+C
+C***  Newton loop for DEBAR
+      TOL = SIG0*1.D-5
+      DO ILOOP=1,20
+        EBARDOT = DEBAR/DTIME
+        CALL KYCURVE(YIELD,H,HC,DD,EBAR,CL,EXPO,E0,SIG0,PROPS,NPROPS,
+     + ETAT,AVGETA,AVGTHETA,PS1,PDDT,AIDDT,EBART,AIDD,PDD,SYI,EPCL,SC,
+     + C1,C2,C3,C4,ETAC,GF,D1,D2,D3,D4,DFLAG,AIFT,AIF,FFLAG,DCRT,DCR,
+     + CTT,DTIME,IWR,IOUT,DDH,SYD,DCOMB,SCFCN,FFLAGCL,FFLAGD,CTOR,DSTAR)
+        CALL KRATEFCN(AF,DAFDEP,EBARDOT0,EBARDOT)
+        FQ = QEL - 3.D0*G*DEBAR - (1.D0 - DD)*YIELD*(1.D0 + AF)
+        IF (DABS(FQ).LT.TOL) GOTO 2011
+        FP = - 3.D0*G + (SYI/GF)*YIELD*(1.D0 + AF) - 
+     +       (1.D0 - DD)*(H*(1.D0 + AF) + (DAFDEP/DTIME)*YIELD)
+        DDE = - FQ/FP
+        DEBAR = DEBAR + DDE
+        EBAR = EBART + DEBAR
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'FQ, FP'
+          WRITE(IOUT,1001) FQ, FP
+        END IF
+      END DO
+      WRITE(IOUT,*) 'NEWTON LOOP DOES NOT CONVERGE. PNEWDT SET TO 0.5.'
+      WRITE(IOUT,*) 'NOEL, NPT, KSTEP, KINC'
+      WRITE(IOUT,1002) NOEL,NPT,KSTEP,KINC
+      PNEWDT = 0.5D0
+      RETURN
+C
+ 2011 CONTINUE
+      IF (IWR.NE.0)THEN
+        WRITE(IOUT,*) 'NEWTON ITERATIONS FOR DE = ', ILOOP 
+        WRITE(IOUT,*) 'DEBAR, EBAR'
+        WRITE(IOUT,1001) DEBAR, EBAR
+      END IF
+C
+      AUX = 1.5D0/QEL
+      DO I=1,NTENS
+        AN(I) = AUX*SEL(I)
+      END DO
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'AN'
+        WRITE(IOUT,1001) (AN(I),I=1,NTENS)
+      END IF
+C
+      DO I=1,NTENS
+        SDEV(I) = SEL(I) - 2.D0*G*DEBAR*AN(I)
+      END DO
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'SDEV'
+        WRITE(IOUT,1001) (SDEV(I),I=1,4)
+      END IF
+C
+      call MutexLock(10) ! lock Mutex #10
+      PELEM(NOEL,NPT) = P
+      call MutexUnlock(10) ! unlock Mutex #10
+C
+      STRESS = SDEV
+      DO I=1,NDI
+        STRESS(I) = STRESS(I) + P
+      END DO
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'STRESS'
+        WRITE(IOUT,1001) (STRESS(I),I=1,NTENS)
+      END IF
+C
+C*** rotates stresses and "nornal" tensor AN
+      CALL KROTSTRS(STRESS,R,QMX,NTENS)
+      CALL KROTSTRS(AN,    R,QMX,NTENS)
+      CALL KSLODE(ETA,THETADEG,STRESS,SIG0,NDI,NTENS)
+      THETARAD = THETADEG*PI/180.D0
+      THETABAR = -(6.D0*THETARAD)/PI
+      QETA    = QETAT + 0.5D0*(ETA + ETAT)*(EBAR-EBART)
+      QTHETA  = QTHETAT + 0.5D0*(THETABAR + THETABART)*(EBAR-EBART)
+C      
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*) 'ROTATED STRESS VECTOR'
+        WRITE(IOUT,1001) (STRESS(I),I=1,NTENS)
+        WRITE(IOUT,*) 'ROTATED AN VECTOR'
+        WRITE(IOUT,1001) (AN(I),I=1,NTENS)
+      END IF
+C
+      CALL KCT(CT,CTOR,dCTdEP,dCTdCL,CTT,THETAL,THETAT,EBAR,CL,PROPS,
+     + NPROPS,DTIME)
+C
+      CALL KRATEFCN(AF,DAFDEP,EBARDOT0,EBARDOT)
+C
+*** calculate effective hardening modulus
+      HEFF = (1.D0 - DD)*((1.D0 + AF)*(H + HC*dCTdEP) +  
+     +         DAFDEP*(YIELD/DTIME)) - (1.D0 + AF)*YIELD*(SYI/GF)
+C
+*** calculate chemical potential for visualization purposes
+      AMU = AMU0 + DLOG(CL) - (P - P00)*VH
+C
+C*** update state variables
+      STATEV(1)  = EBAR
+      STATEV(2)  = 1.D0
+      STATEV(4)  = CT
+      STATEV(9)  = DD      
+      STATEV(10) = AIDD    
+      STATEV(11) = DFLAG    
+      STATEV(12) = AIF      
+      STATEV(13) = FFLAG   
+      STATEV(14) = SYI   
+      STATEV(15) = ETA      
+      STATEV(16) = THETADEG 
+      STATEV(17) = QETA       
+      STATEV(18) = QTHETA
+      STATEV(19) = DCR
+      STATEV(20) = PDD
+      STATEV(22) = YIELD
+      STATEV(23) = RHO
+      STATEV(26) = DDH
+      STATEV(27) = AMU
+      STATEV(28) = SYD
+      STATEV(29) = DCOMB
+      STATEV(30) = SCFCN
+      STATEV(31) = PS1 - SCFCN
+      STATEV(32) = FFLAGCL
+      STATEV(33) = FFLAGD
+      STATEV(34) = CTOR
+      STATEV(35) = EBARDOT
+      STATEV(36) = HEFF
+      STATEV(37) = SPRMAX
+      STATEV(38) = DSTAR
+C
+C*** update energies
+      AUXVD = (1.D0 - DD)*(1.D0 - DD)
+      SSE = AUXVD*YIELD*YIELD/(6.D0*G) + P*P/(2.D0*AK)
+      SPD = SPD + 0.5D0*(SBART + (1.D0 - DD)*YIELD)*DEBAR
+      IF (IWR.NE.0) THEN
+        WRITE(IOUT,*)'ELASTIC STRAIN ENERGY, PLASTIC DISSIPATION'
+        WRITE(IOUT,1001) SSE, SPD
+      END IF
+C
+      IF (IELASTIC.EQ.1) THEN ! 1ST ITERATION OF INCREMENT - USE ELASTIC STIFFNESS
+C
+C*** elastic Jacobian
+        DDSDDE = CEL
+        DO I=1,NTENS
+          DDSDDT(I) = 0.D0
+          DO J=1,NTENS
+            DDSDDE(I,J) = DDSDDE(I,J) + STRESS(I)*DELTA(J)
+          ENDDO
+        ENDDO
+C
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'ELASTIC DDSDDE, 1ST ITERATION'
+          DO I=1,NTENS
+            WRITE(IOUT,1001) (DDSDDE(I,J),J=1,NTENS)
+          END DO
+          WRITE(IOUT,*) 'ELASTIC DDSDDT, 1ST ITERATION'
+          WRITE(IOUT,1001) (DDSDDT(I),I=1,NTENS)
+        END IF
+C
+        RPL    = -(CT - CTT)/DTIME 
+        DRPLDT = -dCTdCL/DTIME
+        DRPLDE = 0.D0
+C
+C*** change order of magnitude of heat equation to avoid zero heat flux in solver
+C*** default value of SFD = 1.D0 in cases where we have no zero heat flux in solver
+        DRPLDT = DRPLDT*SFD
+        DRPLDE = DRPLDE*SFD
+        RPL    = RPL*SFD
+C
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'ELASTIC DRPLDE, 1ST ITERATION'
+          WRITE(IOUT,1001) (DRPLDE(I),I=1,NTENS)
+          WRITE(IOUT,*) 'ELASTIC DRPLDT, 1ST ITERATION'
+          WRITE(IOUT,1001) DRPLDT
+          WRITE(IOUT,*) 'RPL'
+          WRITE(IOUT,1001) RPL     
+        END IF
+C
+      ELSE ! 2ND OR HIGHER ITERATION - USE PLASTIC JACOBIANS
+C
+C*** plastic Jacobians
+        IF (IWR.NE.0) WRITE(IOUT,*) 'PLASTIC JACOBIANS'
+C
+        AEL = 3.D0*G + HEFF
+        DO I=1,NTENS
+          AA(I) = (2.D0*G*AN(I))/AEL
+        END DO
+        AB  = ((1.D0 + AF)*(1.D0 - DD)*HC*(1.D0 + dCTdCL))/AEL
+C
+        AUX = 4.D0*G*G*DEBAR/QEL
+        DO I=1,NTENS
+        DO J=1,NTENS
+          DDSDDE(I,J) = CEL(I,J) - 2.D0*G*AN(I)*AA(J) -
+     +                AUX*( 1.5D0*AKMX(I,J) - AN(I)*AN(J) )
+        END DO
+        END DO
+        DO I=1,NTENS
+        DO J=1,NTENS
+          DDSDDE(I,J) = DDSDDE(I,J) + STRESST(I)*DELTA(J)
+        ENDDO
+        ENDDO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'PLASTIC DDSDDE'
+          DO I=1,NTENS
+            WRITE(IOUT,1001) (DDSDDE(I,J),J=1,NTENS)
+          ENDDO
+        END IF
+C
+        DO I=1,NTENS
+          DDSDDT(I) = 2.D0*G*AB*AN(I)
+        END DO
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'PLASTIC DDSDDT'
+          WRITE(IOUT,1001) (DDSDDT(I),I=1,NTENS)
+        END IF
+C
+        DEBARDCL = -AB
+        DO I=1,NTENS
+          DEBARDE(I) = AA(I)
+        END DO
+        DRPLDT = -(dCTdCL + dCTdEP*DEBARDCL)/DTIME
+        DO I=1,NTENS
+          DRPLDE(I) = -(dCTdEP*DEBARDE(I))/DTIME
+        END DO
+        RPL    = -(CT - CTT)/DTIME 
+C
+C*** change order of magnitude of heat equation to avoid zero heat flux in solver
+C*** default value of SFD = 1.D0 in cases where we have no zero heat flux in solver
+        DRPLDT = DRPLDT*SFD
+        DRPLDE = DRPLDE*SFD
+        RPL    = RPL*SFD
+C
+        IF (IWR.NE.0) THEN
+          WRITE(IOUT,*) 'PLASTIC DRPLDE'
+          WRITE(IOUT,1001) (DRPLDE(I),I=1,NTENS)
+          WRITE(IOUT,*) 'PLASTIC DRPLDT'
+          WRITE(IOUT,1001) DRPLDT
+          WRITE(IOUT,*) 'RPL'
+          WRITE(IOUT,1001) RPL     
+        END IF
+C
+      END IF
+C
+C
+C
+C
+ 8888 CONTINUE
+C
+C
+C
+C
+ 9999 CONTINUE
+C
+ 1001 FORMAT(1P8E13.5)
+ 1002 FORMAT(10I5)
+      END

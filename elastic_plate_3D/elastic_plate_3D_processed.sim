@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- COPYRIGHT DASSAULT SYSTEMES 2009 -->
+<manifest>
+    <focusFile fileBinary="elastic_plate_3D_processed.simdir\elastic_plate_3D_processed.3.SMAFocus"/>
+    <publishIndex value="1"/>
+    <bulkFile bulkid="1" fileBinary="elastic_plate_3D_processed.8.SMABulk"/>
+</manifest>

@@ -1,0 +1,192 @@
+*HEADING
+ PATCH TEST 3D HEX, UNIAXIAL TENSION --- DAMAGE MODEL WITH HYDROGEN EFFECTS
+*PREPRINT,ECHO=YES,MODEL=NO
+*RESTART, WRITE, FREQ=200
+**
+************************************************
+**************** UNITS: SI (m) *****************
+**
+** Length: m
+** Time: s
+** Force: N
+** Stress: Pa
+** Mass: kg = (N*s^2)/m
+** Density: kg/m^3
+**
+************************************************
+************************************************
+************* MATERIAL PARAMETERS **************
+**
+*PARAMETER
+** normalizing parameters
+ C0 = 2.086E21
+ S0 = 250.E6
+ L  = 5.E-6
+ T0 = 1.E0
+ R  = 8.3144E0
+ T  = 300.E0
+ RHO0 = 1.E0
+*** Scale factor parameter for diffusion problem
+ SFD  = 1.E0
+** normalized material data
+ AE      = (207.E9)/S0
+ POISSON = 0.3E0
+ SIG0    = (250.E6)/S0
+ EXPO    = 5.E0
+ AE0     = SIG0/AE
+**
+ D      = (1.27E-8)/(L*L/T0)
+ VH     = (2.E-6)/(R*T/S0)
+ KT     = 4.97033E10
+ ALPHA  = 1.E0
+ NL     = (8.46E28)/C0
+ BETA   = 1.E0
+ LAMBDA = 0.281E0
+ ALFREQ = (11.8449E0)/(1./T0)
+ AMU0   = (0.E0)/(R*T)
+ P0     = (0.E0)/S0
+**
+ EPCL  = 0.03
+ SC    = 100.0
+ C1    = 0.4943
+ C2    = 2.266
+ C3    = 0.1
+ C4    = 1.131
+ ETAC  = -0.33
+ GF    = 0.515
+ D1    = 0.83
+ D2    = 0.5449
+ D3    = 0.85
+ D4    = 0.3926
+**
+**
+*******NODES & SETS***********
+**
+*NODE,NSET=ALLN
+ 1 , 0. , 1. ,  1.
+ 2 , 1. , 1. ,  1.
+ 3 , 1. , 1. ,  0.
+ 4 , 0. , 1. ,  0.
+ 5 , 0. , 0. ,  1.
+ 6 , 1. , 0. ,  1.
+ 7 , 1. , 0. ,  0.
+ 8 , 0. , 0. ,  0.
+ 9  , 0.165 , 0.745 ,  0.702
+ 10 , 0.788 , 0.693 ,  0.644
+ 11 , 0.850 , 0.649 ,  0.263
+ 12 , 0.273 , 0.750 ,  0.230
+ 13 , 0.320 , 0.186 ,  0.643
+ 14 , 0.677 , 0.305 ,  0.683
+ 15 , 0.826 , 0.288 ,  0.288
+ 16 , 0.249 , 0.342 ,  0.192
+**
+*NSET,NSET=TOP
+ 1 , 2 , 3 , 4
+*NSET,NSET=BOT
+ 5 , 6 , 7 , 8
+*NSET,NSET=LEFT
+ 5 , 8 , 4 , 1
+*NSET,NSET=RIGHT
+ 6 , 7 , 3 , 2
+*NSET,NSET=FRONT
+ 5 , 6 , 2 , 1
+*NSET,NSET=BACK
+ 8 , 7 , 3 , 4
+**
+*******ELEMENTS***********
+**
+*INCLUDE,INPUT=elements
+**
+*******FIXED BOUNDARY CONDITIONS********
+**
+*BOUNDARY
+ BOT,  2, 2
+ LEFT, 1, 1
+ BACK, 3, 3
+**
+***********USER MATERIAL***************
+**
+*SOLID SECTION, ELSET=ALLE, MATERIAL=ONE
+*MATERIAL, NAME=ONE
+*DENSITY
+ <RHO0>
+*DEPVAR
+** EBARP, YFLAG, CL, CT, GRADPX, GRADPY, CTOTAL, CL0,
+** DD, AIDD, DFLAG, AIF, FFLAG, SYI, ETA, THETADEG, 
+** QETA, QTHETA, DCR, PDD, U, YIELD, RHO, THETAL,
+** THETAT, DDH, AMU, SYD, DCOMB
+ 29
+ 1, EBARP, EBARP
+ 2, YFLAG, YFLAG
+ 3, CL,    CL
+ 4, CT,    CT
+ 5, GRADPX,GRADPX
+ 6, GRADPY,GRADPY
+ 7, CTOTAL,CTOTAL
+ 8, CL0, CL0 
+ 9, DD, DD
+10, AIDD, AIDD   
+11, DFLAG, DFLAG
+12, AIF, AIF   
+13, FFLAG, FFLAG
+14, SYI, SYI
+15, ETA, ETA
+16, THETADEG, THETADEG
+17, QETA, QETA
+18, QTHETA, QTHETA
+19, DCR, DCR
+20, PDD, PDD
+21, U, U
+22, YIELD, YIELD
+23, RHO, RHO
+24, THETAL, THETAL
+25, THETAT, THETAT
+26, DDH, DDH
+27, AMU, AMU
+28, SYD, SYD
+29, DCOMB, DCOMB
+**
+*USER MATERIAL, CONSTANTS=30, TYPE=MECHANICAL, UNSYMM
+ <AE>, <POISSON>, <SIG0>, <EXPO>,    <AE0>, <C0>, <D>, <VH>,
+ <KT>,   <ALPHA>,   <NL>, <BETA>, <LAMBDA>, <EPCL>, <SC>, <C1>,    
+ <C2>, <C3>, <C4>, <ETAC>, <GF>, <D1>, <D2>, <D3>,    
+ <D4>, <RHO0>, <ALFREQ>, <SFD>,  <P0>, <AMU0>
+**
+*USER MATERIAL, CONSTANTS=30, TYPE=THERMAL, UNSYMM
+ <AE>, <POISSON>, <SIG0>, <EXPO>,    <AE0>, <C0>, <D>, <VH>,
+ <KT>,   <ALPHA>,   <NL>, <BETA>, <LAMBDA>, <EPCL>, <SC>, <C1>,    
+ <C2>, <C3>, <C4>, <ETAC>, <GF>, <D1>, <D2>, <D3>,    
+ <D4>, <RHO0>, <ALFREQ>, <SFD>,  <P0>, <AMU0>
+**
+**
+************ INITIAL CONDITIONS ***********
+**
+*INITIAL CONDITIONS, TYPE=SOLUTION
+ ALLE, 0., 0., 1., 0., 0., 0., 0.,
+ 0., 0., 0., 0., 0., 1., 0., 0.,
+ 0., 0., 0., 0., 0., 0., 0., <RHO0>,
+ 0., 0., 0., 0., 0., 0.
+*INITIAL CONDITIONS, TYPE=TEMPERATURE
+ ALLN,  1.
+************** LOADING AMPLITUDES **************
+*AMPLITUDE, NAME=AMPRAMP, VALUE=RELATIVE, DEFINITION=TABULAR
+ 0.,0., 400., 1.
+*******STEP*************************
+**
+*STEP, INC=10000, NLGEOM, UNSYMM=YES
+*COUPLED TEMPERATURE-DISPLACEMENT, CREEP=NONE, DELTMX=2.5
+ 1.E-1, 400., , 4.E-1
+*BOUNDARY, AMPLITUDE=AMPRAMP
+ TOP, 2, 2, 0.2
+*FIELD, USER
+ ALLN
+**
+*******OUTPUT****************************
+**
+*OUTPUT,FIELD,FREQUENCY=1
+*ELEMENT OUTPUT, ELSET=ALLE
+ S, LE, SDV, HFL
+*NODE OUTPUT
+ U, RF, NT
+**
+*END STEP
